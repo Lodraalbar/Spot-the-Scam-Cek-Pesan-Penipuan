@@ -1,0 +1,1110 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Login Page</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Manrope:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #e6e9fb;
+        --card: #fff;
+        --ink: #2b3a95;
+        --text: #3a4270;
+        --muted: #7a82a8;
+        --accent: #4a63e7;
+        --field: #f1f3fd;
+        --line: #d3d9f5;
+        --err: #c2294a;
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      html {
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #0d1022;
+          --card: #161a33;
+          --ink: #c3ccff;
+          --text: #b4bce6;
+          --muted: #8890bd;
+          --accent: #7f8fff;
+          --field: #1e2342;
+          --line: #2c3260;
+          --err: #ff7b98;
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #0d1022;
+        --card: #161a33;
+        --ink: #c3ccff;
+        --text: #b4bce6;
+        --muted: #8890bd;
+        --accent: #7f8fff;
+        --field: #1e2342;
+        --line: #2c3260;
+        --err: #ff7b98;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font:
+          400 15px/1.6 Manrope,
+          system-ui,
+          sans-serif;
+        min-height: 100vh;
+        display: flex;
+        padding: 18px;
+        background-image:
+          radial-gradient(60% 50% at 0% 100%, #a78bfa55, transparent),
+          radial-gradient(50% 45% at 100% 100%, #34d3a044, transparent),
+          radial-gradient(50% 40% at 100% 0, #4ade8044, transparent);
+      }
+      .shell {
+        flex: 1;
+        background: var(--card);
+        border-radius: 28px;
+        max-width: 1180px;
+        margin: auto;
+        padding: 22px 40px 28px;
+        box-shadow: 0 20px 60px #4a63e733;
+        display: flex;
+        flex-direction: column;
+        min-height: min(760px, calc(100vh - 36px));
+      }
+      .logo {
+        font:
+          700 18px Merriweather,
+          serif;
+        color: var(--ink);
+      }
+      .links {
+        display: flex;
+        gap: 30px;
+        font-size: 13px;
+      }
+      .links a,
+      .signin {
+        color: var(--muted);
+        text-decoration: none;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: inline-block;
+      }
+      .links a:hover,
+      .signin:hover {
+        transform: scale(1.08);
+      }
+      .links a[aria-current] {
+        color: var(--accent);
+        border-bottom: 1px solid var(--accent);
+      }
+      .signin {
+        color: var(--accent);
+        font-size: 13px;
+      }
+      main {
+        flex: 1;
+        display: grid;
+        grid-template-columns: minmax(300px, 0.85fr) 1.15fr;
+        align-items: center;
+        gap: 20px;
+      }
+      h1 {
+        font:
+          700 40px/1.2 Merriweather,
+          serif;
+        color: var(--ink);
+        margin: 0 0 10px;
+      }
+      .sub {
+        margin: 0 0 24px;
+        color: var(--muted);
+        max-width: 42ch;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin: 14px 0 6px;
+        color: var(--ink);
+      }
+      .field {
+        position: relative;
+      }
+
+      /* Animasi kemunculan field Username */
+      .field-usn-wrapper {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.4s ease,
+          opacity 0.3s ease,
+          margin 0.3s ease;
+        margin-top: 0;
+      }
+      .field-usn-wrapper.show {
+        max-height: 100px;
+        opacity: 1;
+        margin-bottom: 14px;
+      }
+
+      input[type="email"],
+      input[type="password"],
+      input[type="text"] {
+        width: 100%;
+        height: 46px;
+        border: 1.5px solid var(--line);
+        border-radius: 12px;
+        background: var(--field);
+        color: var(--text);
+        padding: 0 14px;
+        font: inherit;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      input:focus-visible,
+      button:focus-visible,
+      a:focus-visible,
+      .mb:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .eye {
+        position: absolute;
+        right: 6px;
+        top: 5px;
+        height: 36px;
+        border: 0;
+        background: none;
+        color: var(--accent);
+        font: 600 12px Manrope;
+        cursor: pointer;
+        padding: 0 10px;
+        transition:
+          transform 0.2s ease,
+          color 0.2s;
+      }
+      .eye:hover {
+        transform: scale(1.1);
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 14px 0 20px;
+        font-size: 13px;
+      }
+      .row a {
+        color: var(--accent);
+        text-decoration: none;
+        transition: transform 0.2s ease;
+        display: inline-block;
+      }
+      .row a:hover {
+        transform: scale(1.05);
+      }
+      .btns {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      /* Animasi Smooth Zoom-In untuk semua Tombol */
+      .btn {
+        height: 42px;
+        padding: 0 28px;
+        border-radius: 21px;
+        border: 1.5px solid var(--accent);
+        font: 700 13px Manrope;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+          box-shadow 0.25s ease,
+          background 0.25s ease,
+          color 0.25s ease;
+        will-change: transform;
+      }
+      .btn:hover {
+        transform: scale(1.07);
+      }
+      .btn:active {
+        transform: scale(0.98);
+      }
+      .btn.p {
+        background: linear-gradient(90deg, #5b7cff, #4a46d6);
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 8px 18px #4a63e744;
+      }
+      .btn.p:hover {
+        box-shadow: 0 12px 24px #4a63e766;
+      }
+      .btn.s {
+        background: none;
+        color: var(--accent);
+      }
+      .btn.s:hover {
+        background: var(--field);
+      }
+
+      .msg {
+        min-height: 22px;
+        margin: 14px 0 0;
+        font-size: 13px;
+      }
+      .msg.err {
+        color: var(--err);
+      }
+      .msg.ok {
+        color: #1f9d6b;
+      }
+      footer {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .art {
+        display: flex;
+        justify-content: center;
+      }
+      svg {
+        width: 100%;
+        max-width: 620px;
+        height: auto;
+        overflow: visible;
+      }
+      /* animasi ilustrasi */
+      .bob {
+        animation: bob 4s ease-in-out infinite;
+      }
+      @keyframes bob {
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+      .mb {
+        cursor: pointer;
+      }
+      .door {
+        transform-box: fill-box;
+        transform-origin: 0 50%;
+        transition: transform 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
+      }
+      .open .door {
+        transform: scaleX(0.14);
+      }
+      .flag {
+        transform-box: fill-box;
+        transform-origin: 50% 100%;
+        transition: transform 0.5s 0.2s;
+      }
+      .open .flag {
+        transform: rotate(-70deg);
+      }
+      .inl {
+        transition:
+          transform 0.7s 0.25s cubic-bezier(0.3, 1.3, 0.5, 1),
+          opacity 0.4s;
+        opacity: 0;
+      }
+      .open .inl {
+        opacity: 1;
+        transform: translate(10px, -26px) rotate(-12deg);
+      }
+      .fly {
+        opacity: 0;
+      }
+      .open .fly {
+        animation: fly 2.4s ease-in-out infinite;
+      }
+      .open .fly.b {
+        animation-delay: 1.2s;
+      }
+      @keyframes fly {
+        0% {
+          transform: translate(0, 0) rotate(0) scale(0.5);
+          opacity: 0;
+        }
+        15% {
+          opacity: 1;
+        }
+        75% {
+          transform: translate(78px, -128px) rotate(-24deg) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(84px, -146px) rotate(-30deg) scale(0.4);
+          opacity: 0;
+        }
+      }
+      .lt {
+        transition: transform 0.8s 0.7s cubic-bezier(0.3, 1.3, 0.5, 1);
+      }
+      .open .lt {
+        transform: translateY(-44px);
+      }
+      .fc {
+        transition: opacity 0.3s 0.5s;
+      }
+      .open .fc {
+        opacity: 0;
+      }
+      .fo {
+        opacity: 0;
+        transition: opacity 0.3s 0.5s;
+      }
+      .open .fo {
+        opacity: 1;
+      }
+      .walker {
+        animation: walk 10s linear infinite;
+        opacity: 0;
+      }
+      @keyframes walk {
+        0% {
+          transform: translate(70px, 444px);
+          opacity: 0;
+        }
+        6% {
+          opacity: 1;
+        }
+        92% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(500px, 398px);
+          opacity: 0;
+        }
+      }
+      .leg {
+        transform-box: fill-box;
+        transform-origin: 50% 0;
+        animation: step 0.55s ease-in-out infinite alternate;
+      }
+      .leg.r {
+        animation-direction: alternate-reverse;
+      }
+      @keyframes step {
+        from {
+          transform: rotate(-32deg);
+        }
+        to {
+          transform: rotate(32deg);
+        }
+      }
+      .body {
+        animation: hop 0.55s ease-in-out infinite alternate;
+      }
+      @keyframes hop {
+        to {
+          transform: translateY(-2px);
+        }
+      }
+      .hook {
+        transform-box: fill-box;
+        transform-origin: 50% 0;
+        animation: sway 3.6s ease-in-out infinite;
+      }
+      @keyframes sway {
+        0%,
+        100% {
+          transform: rotate(-3deg);
+        }
+        50% {
+          transform: rotate(3deg);
+        }
+      }
+      .dot {
+        opacity: 0;
+        animation: type 6s steps(1) infinite;
+      }
+      @keyframes type {
+        0% {
+          opacity: 0;
+        }
+        5%,
+        88% {
+          opacity: 1;
+        }
+        94%,
+        100% {
+          opacity: 0;
+        }
+      }
+      .ring {
+        transform-box: fill-box;
+        transform-origin: center;
+        opacity: 0;
+        animation: ring 10s ease-out infinite;
+      }
+      @keyframes ring {
+        0% {
+          transform: scale(1);
+          opacity: 0.7;
+        }
+        14% {
+          transform: scale(2);
+          opacity: 0;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+      @media (max-width: 900px) {
+        .shell {
+          padding: 18px 20px 24px;
+        }
+        .links,
+        .signin {
+          display: none;
+        }
+        main {
+          grid-template-columns: 1fr;
+        }
+        .art {
+          order: -1;
+        }
+        h1 {
+          font-size: 30px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+        .walker {
+          opacity: 1;
+          transform: translate(300px, 420px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <main>
+        <section>
+          <h1 id="title-text">Sign In</h1>
+          <p class="sub" id="sub-text">
+            Gunakan email dan kata sandi yang terdaftar
+          </p>
+          <form id="f" novalidate>
+            <!--Username Field Wrapper-->
+            <div class="field-usn-wrapper" id="usn-wrapper">
+              <label for="usn">Username</label>
+              <input
+                id="usn"
+                type="text"
+                autocomplete="username"
+                placeholder="Masukkan Username"
+              />
+            </div>
+
+        <div class="input-group">
+            <label for="em">Email</label>
+            <input
+              id="em"
+              type="email"
+              autocomplete="email"
+              placeholder="nama@email.com"
+            />
+
+            <label for="pw" style="margin-top: 14px;">Password</label>
+            <div class="field">
+              <input
+                id="pw"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Masukkan Password"
+              /><button
+                class="eye"
+                type="button"
+                id="eye"
+                aria-label="Tampilkan kata sandi"
+              >
+                Lihat
+              </button>
+            </div>
+        </div>
+
+            <div class="row" id="remember-row" style="margin-top: 14px;">
+              <label
+                style="
+                  margin: 0;
+                  font-weight: 400;
+                  display: flex;
+                  gap: 8px;
+                  align-items: center;
+                "
+                ><input type="checkbox" /> Remember me</label
+              ><a href="#">Forgot Password?</a>
+            </div>
+
+            <div class="btns" style="margin-top: 20px;">
+              <button class="btn p" type="submit" id="btn-submit"> 
+                 Sign In
+              </button>
+              <button class="btn s" type="button" id="btn-toggle">
+                Sign Up
+              </button>
+            </div>
+            <p class="msg" id="msg" role="status" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <div class="art">
+          <svg
+            id="art"
+            viewBox="0 0 560 500"
+            role="img"
+            aria-label="Ilustrasi kotak surat, amplop, ponsel, dan orang berjalan"
+          >
+            <defs>
+              <linearGradient id="gp" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#5b4de0" />
+                <stop offset="1" stop-color="#2b1a8c" />
+              </linearGradient>
+              <linearGradient id="gt" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#2fd6a6" />
+                <stop offset="1" stop-color="#3b82f6" />
+              </linearGradient>
+              <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#7db4ff" />
+                <stop offset="1" stop-color="#3f5ce0" />
+              </linearGradient>
+            </defs>
+            <ellipse
+              cx="290"
+              cy="455"
+              rx="250"
+              ry="22"
+              fill="#4a63e7"
+              opacity=".1"
+            />
+            <path
+              d="M40 462 L520 408"
+              stroke="#7f8fff"
+              stroke-width="2"
+              stroke-dasharray="3 9"
+              stroke-linecap="round"
+              fill="none"
+            />
+
+            <!-- ponsel -->
+            <g transform="translate(0,64) skewY(-8)">
+              <rect
+                x="283"
+                y="52"
+                width="150"
+                height="350"
+                rx="34"
+                fill="#1d1466"
+              />
+              <rect
+                x="271"
+                y="44"
+                width="150"
+                height="350"
+                rx="34"
+                fill="url(#gp)"
+              />
+              <rect
+                x="283"
+                y="58"
+                width="126"
+                height="322"
+                rx="24"
+                fill="#150f55"
+                opacity=".55"
+              />
+              <circle cx="297" cy="72" r="3" fill="#fff" opacity=".8" />
+              <circle cx="308" cy="72" r="3" fill="#fff" opacity=".6" />
+              <circle cx="319" cy="72" r="3" fill="#fff" opacity=".4" />
+              <path
+                d="M376 68h22M376 76h22M376 84h22"
+                stroke="#fff"
+                stroke-width="2"
+                stroke-linecap="round"
+                opacity=".7"
+              />
+              <g class="bob" style="animation-duration: 5s">
+                <rect
+                  x="246"
+                  y="134"
+                  width="170"
+                  height="226"
+                  rx="16"
+                  fill="#fff"
+                />
+                <path
+                  d="M246 150a16 16 0 0 1 16-16h138a16 16 0 0 1 16 16v54H246z"
+                  fill="url(#gt)"
+                />
+                <circle cx="331" cy="170" r="22" fill="#fff" />
+                <path
+                  d="M331 155l16 8h-32zM318 166h4v13h-4zM329 166h4v13h-4zM340 166h4v13h-4zM314 181h34v4h-34z"
+                  fill="#3b82f6"
+                />
+                <rect
+                  x="262"
+                  y="218"
+                  width="138"
+                  height="32"
+                  rx="8"
+                  fill="#eef1fc"
+                />
+                <circle cx="278" cy="234" r="6" fill="#aab4ea" />
+                <rect
+                  x="292"
+                  y="231"
+                  width="60"
+                  height="6"
+                  rx="3"
+                  fill="#c9d0f3"
+                />
+                <rect
+                  x="262"
+                  y="260"
+                  width="138"
+                  height="32"
+                  rx="8"
+                  fill="#eef1fc"
+                />
+                <g fill="#3a46b8">
+                  <circle
+                    class="dot"
+                    cx="278"
+                    cy="276"
+                    r="4"
+                    style="animation-delay: 0.3s"
+                  />
+                  <circle
+                    class="dot"
+                    cx="292"
+                    cy="276"
+                    r="4"
+                    style="animation-delay: 0.6s"
+                  />
+                  <circle
+                    class="dot"
+                    cx="306"
+                    cy="276"
+                    r="4"
+                    style="animation-delay: 0.9s"
+                  />
+                  <circle
+                    class="dot"
+                    cx="320"
+                    cy="276"
+                    r="4"
+                    style="animation-delay: 1.2s"
+                  />
+                  <circle
+                    class="dot"
+                    cx="334"
+                    cy="276"
+                    r="4"
+                    style="animation-delay: 1.5s"
+                  />
+                </g>
+                <rect
+                  x="262"
+                  y="306"
+                  width="138"
+                  height="30"
+                  rx="15"
+                  fill="url(#gp)"
+                />
+              </g>
+            </g>
+
+            <!-- kotak surat -->
+            <g
+              class="mb"
+              id="mb"
+              tabindex="0"
+              role="button"
+              aria-label="Buka atau tutup kotak surat"
+              transform="translate(30,250)"
+            >
+              <rect
+                x="64"
+                y="86"
+                width="12"
+                height="118"
+                rx="3"
+                fill="#cfd6f0"
+              />
+              <rect
+                x="50"
+                y="198"
+                width="40"
+                height="8"
+                rx="4"
+                fill="#b3bde6"
+              />
+              <g class="flag">
+                <rect x="100" y="-6" width="5" height="34" fill="#3a46b8" />
+                <rect
+                  x="100"
+                  y="-8"
+                  width="22"
+                  height="12"
+                  rx="2"
+                  fill="#ff6b8a"
+                />
+              </g>
+              <rect
+                x="12"
+                y="18"
+                width="116"
+                height="74"
+                rx="30"
+                fill="url(#gb)"
+              />
+              <rect
+                x="22"
+                y="26"
+                width="70"
+                height="8"
+                rx="4"
+                fill="#fff"
+                opacity=".25"
+              />
+              <ellipse cx="124" cy="55" rx="14" ry="33" fill="#1b2f86" />
+              <rect
+                class="inl"
+                x="112"
+                y="42"
+                width="30"
+                height="20"
+                rx="2"
+                fill="#fff"
+              />
+              <rect
+                class="inl"
+                x="116"
+                y="38"
+                width="30"
+                height="20"
+                rx="2"
+                fill="#e8ecff"
+                style="transition-delay: 0.4s"
+              />
+              <ellipse
+                class="door"
+                cx="124"
+                cy="55"
+                rx="14"
+                ry="33"
+                fill="#5f86ff"
+                stroke="#bcd0ff"
+                stroke-width="2"
+              />
+            </g>
+            <g class="fly">
+              <rect
+                x="150"
+                y="296"
+                width="26"
+                height="18"
+                rx="2"
+                fill="#fff"
+                stroke="#9aa7e8"
+              />
+              <path d="M150 296l13 9 13-9" fill="none" stroke="#9aa7e8" />
+            </g>
+            <g class="fly b">
+              <rect
+                x="150"
+                y="296"
+                width="26"
+                height="18"
+                rx="2"
+                fill="#fff"
+                stroke="#9aa7e8"
+              />
+              <path d="M150 296l13 9 13-9" fill="none" stroke="#9aa7e8" />
+            </g>
+
+            <!-- amplop -->
+            <g class="bob">
+              <g transform="translate(150,70)">
+                <path class="fo" d="M0 28L65 -22 130 28z" fill="#dfe5ff" />
+                <rect
+                  x="0"
+                  y="28"
+                  width="130"
+                  height="86"
+                  rx="6"
+                  fill="#eef1ff"
+                  stroke="#c4ccf3"
+                />
+                <g class="lt">
+                  <rect
+                    x="14"
+                    y="36"
+                    width="102"
+                    height="64"
+                    rx="4"
+                    fill="#fff"
+                    stroke="#c4ccf3"
+                  />
+                  <rect
+                    x="26"
+                    y="48"
+                    width="44"
+                    height="7"
+                    rx="3"
+                    fill="#4a63e7"
+                  />
+                  <rect
+                    x="26"
+                    y="62"
+                    width="78"
+                    height="5"
+                    rx="2.5"
+                    fill="#cdd4f5"
+                  />
+                  <rect
+                    x="26"
+                    y="73"
+                    width="66"
+                    height="5"
+                    rx="2.5"
+                    fill="#cdd4f5"
+                  />
+                </g>
+                <path
+                  d="M0 114L65 70 130 114z"
+                  fill="#f8f9ff"
+                  stroke="#c4ccf3"
+                />
+                <path
+                  d="M0 34L65 82 130 34V28H0z"
+                  fill="#e3e8ff"
+                  stroke="#c4ccf3"
+                  class="fc"
+                />
+              </g>
+            </g>
+
+            <!-- kail -->
+            <g class="hook">
+              <path
+                d="M492 52V318c0 26-34 28-34 2"
+                fill="none"
+                stroke="#2f2a8a"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+              <circle cx="492" cy="46" r="5" fill="#2f2a8a" />
+            </g>
+
+            <!-- orang berjalan -->
+            <g class="walker">
+              <g class="leg r">
+                <rect
+                  x="-4"
+                  y="-26"
+                  width="8"
+                  height="26"
+                  rx="4"
+                  fill="#3a2a8c"
+                />
+              </g>
+              <g class="body">
+                <rect
+                  x="-14"
+                  y="-62"
+                  width="12"
+                  height="28"
+                  rx="6"
+                  fill="#ff9a62"
+                />
+                <rect
+                  x="-9"
+                  y="-58"
+                  width="20"
+                  height="36"
+                  rx="9"
+                  fill="#7a5cf0"
+                />
+                <circle cx="2" cy="-68" r="9" fill="#f2c4a0" />
+                <path
+                  d="M-7 -70a9 9 0 0 1 18 -2v-3a9 9 0 0 0 -18 2z"
+                  fill="#2b1f5c"
+                />
+              </g>
+              <g class="leg">
+                <rect
+                  x="-4"
+                  y="-26"
+                  width="8"
+                  height="26"
+                  rx="4"
+                  fill="#5b4de0"
+                />
+              </g>
+              <g
+                transform="translate(0,-98)"
+                font-family="Merriweather,serif"
+                font-weight="700"
+                font-size="16"
+                text-anchor="middle"
+                fill="#3a46b8"
+              ></g>
+            </g>
+          </svg>
+        </div>
+      </main>
+      <footer>Hak cipta dilindungi.</footer>
+    </div>
+
+    <script>
+      
+      (function () {
+        var svg = document.getElementById("art"),
+          mb = document.getElementById("mb"),
+          open = false,
+          hover = false,
+          t;
+
+        function set(v) {
+          open = v;
+          svg.classList.toggle("open", v);
+        }
+
+        function loop() {
+          if (!hover) set(!open);
+          t = setTimeout(loop, open ? 4400 : 2600);
+        }
+        loop();
+
+        mb.addEventListener("mouseenter", function () {
+          hover = true;
+          set(true);
+        });
+        mb.addEventListener("mouseleave", function () {
+          hover = false;
+        });
+        mb.addEventListener("click", function () {
+          set(!open);
+        });
+        mb.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            set(!open);
+          }
+        });
+
+        // Toggle Password Visibility
+        var pw = document.getElementById("pw"),
+          eye = document.getElementById("eye");
+        eye.addEventListener("click", function () {
+          var s = pw.type === "password";
+          pw.type = s ? "text" : "password";
+          eye.textContent = s ? "Sembunyikan" : "Lihat";
+          eye.setAttribute(
+            "aria-label",
+            s ? "Sembunyikan kata sandi" : "Tampilkan kata sandi",
+          );
+        });
+
+        // State & Dynamic Form Handler (Sign In / Sign Up toggle)
+        var isSignUp = false;
+        var usnWrapper = document.getElementById("usn-wrapper");
+        var btnToggle = document.getElementById("btn-toggle");
+        var btnSubmit = document.getElementById("btn-submit");
+        var titleText = document.getElementById("title-text");
+        var subText = document.getElementById("sub-text");
+        var rememberRow = document.getElementById("remember-row");
+        var msg = document.getElementById("msg");
+
+        btnToggle.addEventListener("click", function () {
+          isSignUp = !isSignUp;
+          msg.textContent = "";
+
+          if (isSignUp) {
+            usnWrapper.classList.add("show");
+            titleText.textContent = "Sign Up";
+            subText.textContent =
+              "Buat akun baru untuk mulai mengakses layanan";
+            btnSubmit.textContent = "Sign Up";
+            btnToggle.textContent = "Sign In";
+            rememberRow.style.display = "none";
+          } else {
+            usnWrapper.classList.remove("show");
+            titleText.textContent = "Sign In";
+            subText.textContent = "Gunakan email dan kata sandi yang terdaftar";
+            btnSubmit.textContent = "Sign In";
+            btnToggle.textContent = "Sign Up";
+            rememberRow.style.display = "flex";
+          }
+        });
+
+        // Form Validation & Submit Logic
+        document.getElementById("f").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var em = document.getElementById("em").value.trim();
+          var usn = document.getElementById("usn").value.trim();
+
+          if (isSignUp && usn.length < 3) {
+            msg.className = "msg err";
+            msg.textContent = "Username minimal 3 karakter.";
+            return;
+          }
+
+          if (!/^\S+@\S+\.\S+$/.test(em)) {
+            msg.className = "msg err";
+            msg.textContent = "Email belum valid. Contoh: nama@email.com";
+            return;
+          }
+
+          if (pw.value.length < 6) {
+            msg.className = "msg err";
+            msg.textContent = "Kata sandi minimal 6 karakter.";
+            return;
+          }
+
+          // === SIMPAN DATA KE LOCALSTORAGE ===
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userEmail', em);
+          localStorage.setItem('userName', isSignUp && usn ? usn : em.split('@')[0]);
+
+          msg.className = "msg ok";
+          msg.textContent = isSignUp
+            ? "Pendaftaran berhasil! Mengalihkan..."
+            : "Login berhasil! Mengalihkan...";
+          set(true);
+
+          setTimeout(function() {
+            window.location.href = "db.html";
+          }, 800);
+        });
+      })();
+    </script>
+  </body>
+</html>
