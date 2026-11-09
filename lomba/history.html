@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Riwayat Pesan & Pencarian</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script>
+      tailwind.config = {
+        corePlugins: {
+          preflight: false,
+        },
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Poppins", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+        :root {
+      
+        --red: #d02a0a;
+        --red2: #701507;
+        --red3: #531002;
+        --wine: #5a0f14;
+        --lime: #c6f52c;
+        --ok: #1f9d57;
+        --warn: #f2b400;
+        color-scheme: light;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #151311;
+          --ink: #b9b9b7;
+          --card: #211e1b;
+          --mut: #a39e92;
+          color-scheme: dark;
+        }
+      }
+
+      :root[data-theme="dark"] {
+        --bg: #151311;
+        --ink: #f6f5f0;
+        --card: #211e1b;
+        --mut: #a39e92;
+        color-scheme: dark;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: var(--bg);
+        color: var(--ink);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      .card {
+        background-color: var(--card) !important;
+        color: var(--ink) !important;
+        border: 1px solid rgba(107, 103, 94, 0.15);
+      }
+
+      .table {
+        color: var(--ink) !important;
+        background-color: transparent !important;
+      }
+
+      .table thead th {
+        background-color: rgba(107, 103, 94, 0.08) !important;
+        color: var(--mut) !important;
+        border-bottom: 1px solid rgba(107, 103, 94, 0.15) !important;
+      }
+
+      .table tbody tr {
+        border-color: rgba(107, 103, 94, 0.1) !important;
+        transition: background-color 0.2s ease;
+      }
+
+      .table tbody tr:hover {
+        background-color: rgba(107, 103, 94, 0.04);
+      }
+
+      .text-muted {
+        color: var(--mut) !important;
+      }
+
+      .text-dark {
+        color: var(--ink) !important;
+      }
+
+      .status-dropdown-wrapper {
+        position: relative;
+        display: inline-block;
+      }
+
+      .status-toggle-btn {
+        background-color: rgba(107, 103, 94, 0.12);
+        border: 1px solid rgba(107, 103, 94, 0.2);
+        color: var(--ink);
+        border-radius: 9999px;
+        padding: 8px 16px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 170px;
+      }
+
+      .status-toggle-btn.btn-reported {
+        background-color: rgba(208, 42, 10, 0.12);
+        color: var(--red);
+        border-color: rgba(208, 42, 10, 0.3);
+      }
+
+      .status-toggle-btn:hover {
+        filter: brightness(0.95);
+      }
+
+      .status-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        width: 170px;
+        background-color: var(--card);
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        z-index: 50;
+        display: none;
+        border: 1px solid rgba(107, 103, 94, 0.2);
+        padding: 6px;
+        animation: fadeInDropdown 0.2s ease-out forwards;
+      }
+
+      @keyframes fadeInDropdown {
+        from {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .status-menu.show {
+        display: block;
+      }
+
+      .status-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 0.75rem;
+        border: none;
+        background: transparent;
+        color: var(--ink);
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-align: left;
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease;
+      }
+
+      .status-option.reported:hover,
+      .status-option.reported.active {
+        background-color: rgba(208, 42, 10, 0.15);
+        color: var(--red);
+      }
+
+      .status-option.unreviewed:hover,
+      .status-option.unreviewed.active {
+        background-color: rgba(107, 103, 94, 0.15);
+        color: var(--ink);
+      }
+
+      .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .btn-link {
+        color: var(--card) !important;
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen p-3 sm:p-6 lg:p-8 d-flex flex-column justify-between"
+  >
+    <!--utama-->
+    <div class="max-w-7xl mx-auto w-full flex-grow">
+      <!--table-->
+      <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead
+              class="text-uppercase fw-bold"
+              style="font-size: 0.75rem; letter-spacing: 0.05em"
+            >
+              <tr>
+                <th class="py-3 px-4" style="width: 33%">Riwayat Pencarian</th>
+                <th class="py-3 px-4" style="width: 42%">Isi Pesan</th>
+                <th class="py-3 px-4" style="width: 25%">Status</th>
+              </tr>
+            </thead>
+            <tbody class="border-top-0">
+              <!-- Baris 1 -->
+              <tr class="transition border-bottom">
+                <td class="py-4 px-4">
+                  <div class="d-flex align-items-center gap-3">
+                    <div
+                      class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                      style="
+                        width: 40px;
+                        height: 40px;
+                        flex-shrink: 0;
+                        background-color: rgba(208, 42, 10, 0.15);
+                        color: var(--red);
+                      "
+                    >
+                      <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold">
+                        Kebijakan Privasi Data Pengguna
+                      </div>
+                      <div class="text-muted small">Pencarian 2 jam lalu</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-4 text-secondary">
+                  <div class="message-container" id="msg-1">
+                    <span class="short-text text-muted"
+                      >Permintaan tinjauan ulang terkait pembaruan klausul
+                      keamanan data pengguna baru tahun ini...</span
+                    >
+                    <span class="full-text d-none text-muted"
+                      >Permintaan tinjauan ulang terkait pembaruan klausul
+                      keamanan data pengguna baru tahun ini. Sistem mendeteksi
+                      adanya penyesuaian regulasi privasi regional yang
+                      mewajibkan enkripsi tingkat lanjut pada database pelanggan
+                      aktif guna mencegah potensi kebocoran informasi sensitif
+                      secara masif.</span
+                    >
+                    <button
+                      onclick="toggleMessage(1)"
+                      class="btn btn-link p-0 text-decoration-none fw-bold ms-1"
+                      style="font-size: 0.85rem"
+                    >
+                      <strong>lihat selanjutnya</strong>
+                    </button>
+                  </div>
+                </td>
+                <td class="py-4 px-4">
+                  <!-- Dropdown Status Kustom -->
+                  <div class="status-dropdown-wrapper">
+                    <button
+                      type="button"
+                      class="status-toggle-btn btn-reported"
+                      onclick="toggleDropdown(event, 'dropdown-1')"
+                    >
+                      <span
+                        class="selected-text d-flex align-items-center gap-2"
+                        ><i class="fa-solid fa-triangle-exclamation"></i>
+                        Dilaporkan</span
+                      >
+                      <i class="fa-solid fa-chevron-down small text-muted"></i>
+                    </button>
+                    <div class="status-menu" id="dropdown-1">
+                      <button
+                        type="button"
+                        class="status-option reported active"
+                        onclick="
+                          selectStatus(
+                            1,
+                            'Dilaporkan',
+                            '<i class=\'fa-solid fa-triangle-exclamation\'></i> Dilaporkan',
+                            'btn-reported'
+                          )
+                        "
+                      >
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        Dilaporkan
+                      </button>
+                      <button
+                        type="button"
+                        class="status-option unreviewed"
+                        onclick="
+                          selectStatus(
+                            1,
+                            'Tidak Ditinjau',
+                            '<i class=\'fa-solid fa-circle-info\'></i> Tidak Ditinjau',
+                            ''
+                          )
+                        "
+                      >
+                        <i class="fa-solid fa-circle-info"></i> Tidak Ditinjau
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Baris 2 -->
+              <tr class="transition border-bottom">
+                <td class="py-4 px-4">
+                  <div class="d-flex align-items-center gap-3">
+                    <div
+                      class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                      style="
+                        width: 40px;
+                        height: 40px;
+                        flex-shrink: 0;
+                        background-color: rgba(107, 103, 94, 0.15);
+                        color: var(--mut);
+                      "
+                    >
+                      <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold">Error Gateway Pembayaran #404</div>
+                      <div class="text-muted small">Pencarian kemarin</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-4 text-secondary">
+                  <div class="message-container" id="msg-2">
+                    <span class="short-text text-muted"
+                      >Pelanggan melaporkan kegagalan transaksi menggunakan
+                      kartu kredit berlogo internasional...</span
+                    >
+                    <span class="full-text d-none text-muted"
+                      >Pelanggan melaporkan kegagalan transaksi menggunakan
+                      kartu kredit berlogo internasional pada pukul 14:30 WIB.
+                      Tim engineering telah melacak kendala ini bersumber dari
+                      timeout API pihak ketiga yang terintegrasi langsung dengan
+                      modul penagihan utama kita.</span
+                    >
+                    <button
+                      onclick="toggleMessage(2)"
+                      class="btn btn-link p-0 text-decoration-none fw-bold ms-1"
+                      style="font-size: 0.85rem"
+                    >
+                      <strong>lihat selanjutnya</strong>
+                    </button>
+                  </div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="status-dropdown-wrapper">
+                    <button
+                      type="button"
+                      class="status-toggle-btn"
+                      onclick="toggleDropdown(event, 'dropdown-2')"
+                    >
+                      <span
+                        class="selected-text d-flex align-items-center gap-2"
+                        ><i class="fa-solid fa-circle-info"></i> Tidak
+                        Ditinjau</span
+                      >
+                      <i class="fa-solid fa-chevron-down small text-muted"></i>
+                    </button>
+                    <div class="status-menu" id="dropdown-2">
+                      <button
+                        type="button"
+                        class="status-option reported"
+                        onclick="
+                          selectStatus(
+                            2,
+                            'Dilaporkan',
+                            '<i class=\'fa-solid fa-triangle-exclamation\'></i> Dilaporkan',
+                            'btn-reported'
+                          )
+                        "
+                      >
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        Dilaporkan
+                      </button>
+                      <button
+                        type="button"
+                        class="status-option unreviewed active"
+                        onclick="
+                          selectStatus(
+                            2,
+                            'Tidak Ditinjau',
+                            '<i class=\'fa-solid fa-circle-info\'></i> Tidak Ditinjau',
+                            ''
+                          )
+                        "
+                      >
+                        <i class="fa-solid fa-circle-info"></i> Tidak Ditinjau
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Baris 3 -->
+              <tr class="transition">
+                <td class="py-4 px-4">
+                  <div class="d-flex align-items-center gap-3">
+                    <div
+                      class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                      style="
+                        width: 40px;
+                        height: 40px;
+                        flex-shrink: 0;
+                        background-color: rgba(208, 42, 10, 0.15);
+                        color: var(--red);
+                      "
+                    >
+                      <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold">Pembaruan Sistem Server Utama</div>
+                      <div class="text-muted small">Pencarian 3 hari lalu</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-4 text-secondary">
+                  <div class="message-container" id="msg-3">
+                    <span class="short-text text-muted"
+                      >Notifikasi terjadwal mengenai pemeliharaan rutin
+                      infrastruktur cloud pada akhir pekan ini...</span
+                    >
+                    <span class="full-text d-none text-muted"
+                      >Notifikasi terjadwal mengenai pemeliharaan rutin
+                      infrastruktur cloud pada akhir pekan ini. Seluruh layanan
+                      web dan aplikasi mobile dipastikan akan mengalami jeda
+                      koneksi sementara selama kurang lebih 45 menit untuk
+                      migrasi kernel sistem operasi terbaru.</span
+                    >
+                    <button
+                      onclick="toggleMessage(3)"
+                      class="btn btn-link p-0 text-decoration-none fw-bold ms-1"
+                      style="font-size: 0.85rem"
+                    >
+                      <strong>lihat selanjutnya</strong>
+                    </button>
+                  </div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="status-dropdown-wrapper">
+                    <button
+                      type="button"
+                      class="status-toggle-btn btn-reported"
+                      onclick="toggleDropdown(event, 'dropdown-3')"
+                    >
+                      <span
+                        class="selected-text d-flex align-items-center gap-2"
+                        ><i class="fa-solid fa-triangle-exclamation"></i>
+                        Dilaporkan</span
+                      >
+                      <i class="fa-solid fa-chevron-down small text-muted"></i>
+                    </button>
+                    <div class="status-menu" id="dropdown-3">
+                      <button
+                        type="button"
+                        class="status-option reported active"
+                        onclick="
+                          selectStatus(
+                            3,
+                            'Dilaporkan',
+                            '<i class=\'fa-solid fa-triangle-exclamation\'></i> Dilaporkan',
+                            'btn-reported'
+                          )
+                        "
+                      >
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        Dilaporkan
+                      </button>
+                      <button
+                        type="button"
+                        class="status-option unreviewed"
+                        onclick="
+                          selectStatus(
+                            3,
+                            'Tidak Ditinjau',
+                            '<i class=\'fa-solid fa-circle-info\'></i> Tidak Ditinjau',
+                            ''
+                          )
+                        "
+                      >
+                        <i class="fa-solid fa-circle-info"></i> Tidak Ditinjau
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Fungsi untuk membuka / menutup dropdown status
+      function toggleDropdown(event, dropdownId) {
+        event.stopPropagation();
+        // Tutup semua dropdown lain terlebih dahulu
+        document.querySelectorAll(".status-menu").forEach((menu) => {
+          if (menu.id !== dropdownId) {
+            menu.classList.remove("show");
+          }
+        });
+        const menu = document.getElementById(dropdownId);
+        menu.classList.toggle("show");
+      }
+
+      // Fungsi memilih opsi status
+      function selectStatus(rowId, statusValue, htmlContent, btnClassName) {
+        const wrapper = document
+          .getElementById(`dropdown-${rowId}`)
+          .closest(".status-dropdown-wrapper");
+        const toggleBtn = wrapper.querySelector(".status-toggle-btn");
+        const selectedTextSpan = toggleBtn.querySelector(".selected-text");
+        const menu = wrapper.querySelector(".status-menu");
+
+        selectedTextSpan.innerHTML = htmlContent;
+
+        // Atur kelas tombol berdasarkan status
+        toggleBtn.className = "status-toggle-btn";
+        if (btnClassName) {
+          toggleBtn.classList.add(btnClassName);
+        }
+
+        // Active state pada menu dropdown
+        menu.querySelectorAll(".status-option").forEach((opt) => {
+          opt.classList.remove("active");
+          if (opt.textContent.trim().includes(statusValue)) {
+            opt.classList.add("active");
+          }
+        });
+
+        // Tutup dropdown
+        menu.classList.remove("show");
+      }
+
+      // Tutup dropdown ketika klik di luar area
+      window.addEventListener("click", () => {
+        document.querySelectorAll(".status-menu").forEach((menu) => {
+          menu.classList.remove("show");
+        });
+      });
+
+      // Teks perluas / ringkas
+      function toggleMessage(id) {
+        const container = document.getElementById(`msg-${id}`);
+        const shortText = container.querySelector(".short-text");
+        const fullText = container.querySelector(".full-text");
+        const btn = container.querySelector("button");
+
+        if (fullText.classList.contains("d-none")) {
+          shortText.classList.add("d-none");
+          fullText.classList.remove("d-none");
+          btn.innerHTML = "<strong>tutup</strong>";
+        } else {
+          shortText.classList.remove("d-none");
+          fullText.classList.add("d-none");
+          btn.innerHTML = "<strong>lihat selanjutnya</strong>";
+        }
+      }
+    </script>
+  </body>
+</html>
