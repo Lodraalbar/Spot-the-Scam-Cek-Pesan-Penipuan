@@ -6,7 +6,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Login Page</title>
+    <title>Spot the Scam — Masuk</title>
+    <meta name="description" content="Masuk atau daftar untuk menyimpan riwayat pemeriksaan pesan penipuan." />
     <link
       href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Manrope:wght@400;600;700&display=swap"
       rel="stylesheet"
@@ -983,18 +984,41 @@
       <footer>Hak cipta dilindungi.</footer>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-      
-      (function () {
+      const SUPABASE_URL = "https://aadgytxzojdniewtnurk.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhZGd5dHh6b2pkbmlld3RudXJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNjU5NDgsImV4cCI6MjEwOTc0MTk0OH0.eK_ZNRU3_DisdsBG_4l3L43ZXeiZy8H1UhSaeywwW_U";
+      let supabaseClient = null;
+      if (window.supabase && window.supabase.createClient) {
+        try {
+          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) {
+          console.error("Gagal init Supabase client:", e);
+        }
+      } else {
+        console.error("Supabase JS library belum termuat. Cek network/CDN.");
+      }
+      if (supabaseClient) {
+        supabaseClient.auth.getSession().then(function (r) {
+          if (r.data.session) window.location.replace("home.html");
+        });
+      }
+
+              (function () {
         var svg = document.getElementById("art"),
           mb = document.getElementById("mb"),
           open = false,
           hover = false,
           t;
 
+        if (!mb) {
+          console.error("Elemen 'mb' tidak ditemukan!");
+          // ponytail: fallback jika SVG ID tidak pas
+        }
+
         function set(v) {
           open = v;
-          svg.classList.toggle("open", v);
+          if (svg) svg.classList.toggle("open", v);
         }
 
         function loop() {
@@ -1003,22 +1027,24 @@
         }
         loop();
 
-        mb.addEventListener("mouseenter", function () {
-          hover = true;
-          set(true);
-        });
-        mb.addEventListener("mouseleave", function () {
-          hover = false;
-        });
-        mb.addEventListener("click", function () {
-          set(!open);
-        });
-        mb.addEventListener("keydown", function (e) {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
+        if (mb) {
+          mb.addEventListener("mouseenter", function () {
+            hover = true;
+            set(true);
+          });
+          mb.addEventListener("mouseleave", function () {
+            hover = false;
+          });
+          mb.addEventListener("click", function () {
             set(!open);
-          }
-        });
+          });
+          mb.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              set(!open);
+            }
+          });
+        }
 
         // Toggle Password Visibility
         var pw = document.getElementById("pw"),
@@ -1046,6 +1072,7 @@
         btnToggle.addEventListener("click", function () {
           isSignUp = !isSignUp;
           msg.textContent = "";
+          btnSubmit.disabled = false;
 
           if (isSignUp) {
             usnWrapper.classList.add("show");
@@ -1066,44 +1093,98 @@
         });
 
         // Form Validation & Submit Logic
-        document.getElementById("f").addEventListener("submit", function (e) {
-          e.preventDefault();
-          var em = document.getElementById("em").value.trim();
-          var usn = document.getElementById("usn").value.trim();
+                document.getElementById("f").addEventListener("submit", async function(e) {
+                  e.preventDefault();
+                  var em = document.getElementById("em").value.trim();
+                  var usn = document.getElementById("usn").value.trim();
+              var submitBtn = document.getElementById("btn-submit");
+              submitBtn.disabled = true;
 
-          if (isSignUp && usn.length < 3) {
-            msg.className = "msg err";
-            msg.textContent = "Username minimal 3 karakter.";
-            return;
-          }
+                  if (isSignUp && usn.length < 3) {
+                    msg.className = "msg err";
+                    msg.textContent = "Username minimal 3 karakter.";
+                    submitBtn.disabled = false;
+                    return;
+                  }
 
-          if (!/^\S+@\S+\.\S+$/.test(em)) {
-            msg.className = "msg err";
-            msg.textContent = "Email belum valid. Contoh: nama@email.com";
-            return;
-          }
+                  if (!/^\S+@\S+\.\S+$/.test(em)) {
+                    msg.className = "msg err";
+                    msg.textContent = "Email belum valid. Contoh: nama@email.com";
+                    submitBtn.disabled = false;
+                    return;
+                  }
 
-          if (pw.value.length < 6) {
-            msg.className = "msg err";
-            msg.textContent = "Kata sandi minimal 6 karakter.";
-            return;
-          }
+                  if (pw.value.length < 6) {
+                    msg.className = "msg err";
+                    msg.textContent = "Kata sandi minimal 6 karakter.";
+                    submitBtn.disabled = false;
+                    return;
+                  }
 
-          // === SIMPAN DATA KE LOCALSTORAGE ===
-          localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('userEmail', em);
-          localStorage.setItem('userName', isSignUp && usn ? usn : em.split('@')[0]);
+                  msg.className = "msg";
+                  msg.textContent = isSignUp ? "Mendaftarkan..." : "Masuk...";
 
-          msg.className = "msg ok";
-          msg.textContent = isSignUp
-            ? "Pendaftaran berhasil! Mengalihkan..."
-            : "Login berhasil! Mengalihkan...";
-          set(true);
-
-          setTimeout(function() {
-            window.location.href = "db.html";
-          }, 800);
-        });
+                  try {
+                    if (isSignUp) {
+                      // Sign Up with Supabase Auth
+                      const { data, error } = await supabaseClient.auth.signUp({
+                        email: em,
+                        password: pw.value,
+                        options: {
+                          data: { username: usn || em.split('@')[0] }
+                        }
+                      });
+                      if (error) throw error;
+                      msg.className = "msg ok";
+                      msg.textContent = "Pendaftaran berhasil! Silakan Sign In.";
+                      submitBtn.disabled = false;
+                      setTimeout(function () {
+                        if (isSignUp) {
+                          document.getElementById("btn-toggle").click();
+                          msg.className = "msg ok";
+                          msg.textContent = "Pendaftaran berhasil! Silakan Sign In.";
+                        }
+                      }, 1500);
+                    } else {
+                      // Sign In with Supabase Auth
+                      const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: em,
+                        password: pw.value
+                      });
+                      if (error) throw error;
+                      // Store session in localStorage for home.html
+                      localStorage.setItem('isLoggedIn', 'true');
+                      localStorage.setItem('userEmail', data.user.email);
+                      localStorage.setItem('userName', data.user.user_metadata?.username || data.user.email.split('@')[0]);
+                      msg.className = "msg ok";
+                      msg.textContent = "Login berhasil! Mengalihkan...";
+                      setTimeout(function() {
+                        window.location.href = "home.html";
+                      }, 800);
+                    }
+                  } catch (err) {
+                    msg.className = "msg err";
+                    if (isSignUp) {
+                      if (/already registered|already been registered/i.test(err.message)) {
+                        msg.textContent = "Email sudah terdaftar. Silakan Sign In.";
+                      } else if (/rate limit/i.test(err.message)) {
+                        msg.textContent = "Terlalu banyak percobaan. Tunggu beberapa menit lalu coba lagi.";
+                      } else {
+                        msg.textContent = "Gagal daftar: " + err.message;
+                      }
+                    } else {
+                      // Specific error messages for login
+                      if (err.message.includes("Invalid login credentials")) {
+                        msg.textContent = "Email atau password salah. Silakan coba lagi.";
+                      } else if (err.message.includes("Email not confirmed")) {
+                        msg.textContent = "Email belum diverifikasi. Cek inbox Anda.";
+                      } else {
+                        msg.textContent = "Gagal login: " + err.message;
+                      }
+                    }
+                    submitBtn.disabled = false;
+                  }
+                });
       })();
     </script>
   </body>

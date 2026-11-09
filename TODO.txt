@@ -1,0 +1,269 @@
+================================================================================
+SPOT THE SCAM - TODO LIST
+Deadline: 10 November 2026
+Last Updated: 9 November 2026
+================================================================================
+
+STATUS SAAT INI:
+✅ Sign Up berhasil (data masuk ke Supabase users table)
+✅ Redirect login → home.html fixed
+✅ Console errors (drawUser, reveal) fixed
+✅ Supabase integration di login.html complete
+⚠️  Login validation belum ada (sign up only)
+⚠️  home.html belum terintegrasi Supabase
+⚠️  Analysis history belum tersimpan ke database
+⚠️  Reports feature belum tersimpan ke database
+
+================================================================================
+PRIORITY 1: AUTH & CORE FUNCTIONALITY (CRITICAL - 3-4 jam)
+================================================================================
+
+[ ] 1. FIX LOGIN VALIDATION
+    - Sekarang: form hanya insert data baru (sign up)
+    - Target: validasi login dengan cek email/password di Supabase
+    - Action:
+      * Tambah logic di login.html: 
+        IF Sign In mode → query users WHERE email = em → validate
+        IF Sign Up mode → insert (sudah jalan)
+      * Simpan user session ke localStorage setelah login berhasil
+    
+[ ] 2. UPDATE home.html CREDENTIALS
+    - File: C:\Users\lodra\...\lomba\home.html
+    - Ganti placeholder:
+      const SUPABASE_URL = "https://aadgytxzojdniewtnurk.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGci..."; (copy dari login.html line 989)
+    - Rename variable: supabase → supabaseClient (konsistensi dengan login.html)
+
+[ ] 3. SIMPAN ANALYSIS HISTORY KE SUPABASE
+    - File: home.html (function yang handle analisis pesan)
+    - Sekarang: hasil analisis hanya ditampilkan
+    - Target: simpan ke tabel analysis_history
+    - Data yang disimpan:
+      * user_id (dari localStorage session)
+      * message (teks yang dianalisis)
+      * score (hasil skor)
+      * level (tingkat risiko)
+      * flags (array indikator)
+    - Action:
+      await supabaseClient.from('analysis_history').insert([{...}])
+
+[ ] 4. SIMPAN REPORTS KE SUPABASE
+    - File: home.html (form laporan penipuan)
+    - Sekarang: form report mungkin belum ada atau localStorage only
+    - Target: simpan ke tabel reports
+    - Data: user_id, phone, url, description, status='pending'
+
+[ ] 5. LOAD HISTORY FROM SUPABASE
+    - File: home.html (di "Lihat Riwayat" section)
+    - Sekarang: "Lihat Riwayat" link belum ada target page
+    - Target: 
+      * Query analysis_history WHERE user_id = current_user
+      * Tampilkan list dengan timestamp, message preview, score
+      * Order by created_at DESC
+
+================================================================================
+PRIORITY 2: UX & POLISH (NICE TO HAVE - 2-3 jam)
+================================================================================
+
+[ ] 6. BUAT HALAMAN RIWAYAT (history.html)
+    - Clone dari home.html (gunakan header/footer yang sama)
+    - Tampilkan tabel/list analysis_history
+    - Filter by date, sort by score
+    - Detail view per analysis
+
+[ ] 7. PROTECTED ROUTES
+    - Semua page kecuali login.html: cek localStorage session
+    - IF tidak login → redirect ke login.html
+    - Add di awal <script> home.html:
+      if (!localStorage.getItem('user_id')) {
+        window.location.href = 'login.html';
+      }
+
+[ ] 8. IMPROVE ERROR MESSAGES
+    - login.html: "Email/password salah" (bukan generic "Gagal")
+    - home.html: "Gagal menyimpan riwayat" dengan retry button
+    - Timeout handling untuk Supabase queries
+
+[ ] 9. LOADING STATES
+    - Disable submit button saat query Supabase sedang jalan
+    - Tampilkan spinner/loading text
+    - Prevent double-submit
+
+[ ] 10. LOGOUT FUNCTIONALITY
+    - home.html: logout button sudah ada
+    - Pastikan:
+      * Clear localStorage (user_id, email, dll)
+      * Call supabaseClient.auth.signOut() (optional, kita pakai custom auth)
+      * Redirect ke login.html
+
+================================================================================
+PRIORITY 3: TESTING & VALIDATION (MANDATORY - 1-2 jam)
+================================================================================
+
+[ ] 11. TEST FULL AUTH FLOW
+    - Sign Up → berhasil → redirect home
+    - Logout → back to login
+    - Sign In → validasi email → masuk home
+    - Sign In dengan email salah → error message
+    - Protected page tanpa login → redirect
+
+[ ] 12. TEST ANALYSIS FEATURE
+    - Input berbagai jenis pesan (scam vs legit)
+    - Pastikan score calculation akurat
+    - OCR test dengan screenshot pesan
+    - Simpan ke database → cek di Supabase Table Editor
+
+[ ] 13. TEST REPORTS FEATURE
+    - Submit laporan → masuk ke tabel reports
+    - Validasi input (phone/URL format)
+    - Status default = 'pending'
+
+[ ] 14. CROSS-BROWSER TEST
+    - Chrome ✓
+    - Firefox (test responsive + Supabase CDN)
+    - Edge (kalau juri pakai Windows)
+
+[ ] 15. MOBILE RESPONSIVE CHECK
+    - Login page di mobile viewport
+    - Home page (form analisis harus usable)
+    - Touch-friendly buttons
+
+================================================================================
+PRIORITY 4: DEPLOYMENT & SUBMISSION (CRITICAL - 1 jam)
+================================================================================
+
+[ ] 16. GIT COMMIT & PUSH
+    - cd "C:\Users\lodra\Documents\kuliah\lomba\webdev unmul\Study-Case-UM-Competition"
+    - git add .
+    - git commit -m "feat: Supabase integration complete - auth, history, reports"
+    - git push origin main
+
+[ ] 17. DEPLOYMENT OPTIONS
+    Option A: Vercel (recommended - 5 menit)
+      * Sign up vercel.com
+      * Import GitHub repo
+      * Deploy (auto-detect static site)
+      * Dapatkan URL: https://spot-the-scam.vercel.app
+    
+    Option B: Netlify (sama cepat)
+      * Drag-drop folder "lomba" ke netlify.com/drop
+      * Atau connect GitHub repo
+    
+    Option C: GitHub Pages
+      * Settings → Pages → Source: main branch → /lomba folder
+      * URL: https://hdna007.github.io/Study-Case-UM-Competition/
+
+[ ] 18. FINAL CHECK DEPLOYED SITE
+    - Supabase credentials masih valid di production
+    - CORS tidak block request (Supabase allow all origins by default)
+    - All pages accessible
+    - No console errors
+
+[ ] 19. PREPARE SUBMISSION MATERIALS
+    Per Juknis PDF:
+    - Link demo (URL deployment)
+    - Link repo GitHub (sudah ada)
+    - README.md dengan:
+      * Deskripsi project
+      * Tech stack (HTML/CSS/JS, Tesseract.js, Supabase)
+      * Cara install/run locally
+      * Screenshot fitur utama
+    - Video demo (optional tapi recommended - 2-3 menit)
+
+[ ] 20. SUBMIT BEFORE DEADLINE
+    - Deadline: 10 November 2026, 23:59 WIB (KONFIRMASI JAM EXACT)
+    - Submit via platform yang ditentukan panitia
+    - Simpan bukti submit (screenshot/email confirmation)
+
+================================================================================
+BUGS KNOWN & FIXES
+================================================================================
+
+[✅] FIXED: db.html redirect → changed to home.html
+[✅] FIXED: drawUser(), reveal() undefined → removed calls
+[✅] FIXED: Duplicate supabase declaration → renamed to supabaseClient
+[✅] FIXED: Sign up form tidak muncul → mb element null check
+[✅] FIXED: 401 Unauthorized → RLS disabled
+[✅] FIXED: Column mismatch username/user_name → use 'username'
+
+[⚠️] TODO: Password tidak disimpan di database
+    - Sekarang: tabel users tidak punya kolom password
+    - Quick fix: ALTER TABLE users ADD COLUMN password_hash TEXT;
+    - Atau: pakai Supabase Auth (supabase.auth.signUp) - lebih aman
+
+[⚠️] TODO: "Lihat Riwayat" link → no target page (create history.html)
+
+================================================================================
+OPTIMIZATIONS (IF TIME PERMITS)
+================================================================================
+
+[ ] Compress images (logo.png)
+[ ] Minify CSS/JS untuk production
+[ ] Add meta tags (SEO, OG tags untuk share preview)
+[ ] Favicon
+[ ] PWA manifest (biar bisa "Add to Home Screen")
+[ ] Analytics (Google Analytics atau Supabase Analytics)
+
+================================================================================
+CONTACT & RESOURCES
+================================================================================
+
+Supabase Project:
+  URL: https://aadgytxzojdniewtnurk.supabase.co
+  Dashboard: https://supabase.com/dashboard/project/aadgytxzojdniewtnurk
+
+GitHub Repo:
+  https://github.com/hdna007/Study-Case-UM-Competition
+
+Local Path:
+  C:\Users\lodra\Documents\kuliah\lomba\webdev unmul\Study-Case-UM-Competition\lomba\
+
+Files Modified:
+  ✅ login.html (Supabase integrated, sign up working)
+  ⚠️  home.html (needs Supabase credentials + history save logic)
+  ✅ setup.sql (DB schema created)
+
+================================================================================
+TIME ESTIMATION
+================================================================================
+
+Priority 1 (Auth & Core):     3-4 jam
+Priority 2 (UX & Polish):     2-3 jam (optional, pick critical ones)
+Priority 3 (Testing):         1-2 jam
+Priority 4 (Deploy & Submit): 1 jam
+
+TOTAL: 7-10 jam kerja fokus
+
+STRATEGY:
+- Hari ini (9 Nov): Selesaikan Priority 1 (4 jam) + sebagian Priority 2
+- Besok (10 Nov): Testing + Deploy + Submit (deadline!)
+
+================================================================================
+NOTES
+================================================================================
+
+- Supabase free tier: 500MB database, 2GB bandwidth/month (cukup untuk competition)
+- Anon key aman di-expose di frontend (read-only with RLS)
+- Jangan commit .env atau secret key ke Git
+- Backup database sebelum production (export SQL dari Supabase dashboard)
+- Test semua fitur di Incognito/Private mode (fresh session)
+
+================================================================================
+QUESTIONS TO CLARIFY
+================================================================================
+
+1. Password storage: pakai plaintext (INSECURE tapi cepat) atau hash (bcrypt)?
+   → Recommendation: hash dengan Web Crypto API atau Supabase Auth
+   
+2. History pagination: load all atau limit 50 recent?
+   → Start dengan .limit(50).order('created_at', { ascending: false })
+   
+3. Reports moderation: butuh admin panel atau cukup view di Supabase dashboard?
+   → Dashboard cukup untuk competition
+   
+4. OCR Tesseract.js: sudah terintegrasi di home.html?
+   → TODO: verify dan test dengan screenshot pesan
+
+================================================================================
+GOOD LUCK! 🚀
+================================================================================
