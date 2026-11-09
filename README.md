@@ -31,7 +31,6 @@ Cek pesan, tautan, nomor HP, atau screenshot yang mencurigakan sebelum Anda memb
 │   ├── login.html      # daftar & masuk
 │   ├── home.html       # analisis teks/gambar, riwayat, laporan
 │   └── logo.png
-└── TODO.txt
 ```
 
 ## Menjalankan lokal
