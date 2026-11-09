@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS reports (
 
 -- 4. RLS Policies (drop existing first)
 DROP POLICY IF EXISTS "Users can view own data" ON users;
+DROP POLICY IF EXISTS "Users can insert own data" ON users;
 DROP POLICY IF EXISTS "Users can insert own history" ON analysis_history;
 DROP POLICY IF EXISTS "Users can view own history" ON analysis_history;
 DROP POLICY IF EXISTS "Users can insert own reports" ON reports;
@@ -44,6 +45,9 @@ ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view own data" ON users
   FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can insert own data" ON users
+  FOR INSERT WITH CHECK (auth.uid() = id);
 
 CREATE POLICY "Users can insert own history" ON analysis_history
   FOR INSERT WITH CHECK (auth.uid() = user_id);
