@@ -4,10 +4,11 @@
 
 Tempel isi pesan atau unggah screenshot chat, lalu aplikasi memberi tahu tingkat risikonya dalam hitungan detik, lengkap dengan alasan dan langkah darurat.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-lodraalbar.github.io-00c853?style=for-the-badge)](https://lodraalbar.github.io/Spot-the-Scam-Cek-Pesan-Penipuan/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-00c853?style=for-the-badge&logo=vercel)](https://spot-the-scam-cek-pesan-penipuan.vercel.app)
 [![Repo](https://img.shields.io/badge/Repository-GitHub-181717?style=for-the-badge&logo=github)](https://github.com/Lodraalbar/Spot-the-Scam-Cek-Pesan-Penipuan)
 
-- **Live Deployment:** <https://lodraalbar.github.io/Spot-the-Scam-Cek-Pesan-Penipuan/>
+- **Live Deployment:** <https://spot-the-scam-cek-pesan-penipuan.vercel.app> (Vercel)
+- **Mirror:** <https://lodraalbar.github.io/Spot-the-Scam-Cek-Pesan-Penipuan/> (GitHub Pages)
 - **Video Demonstrasi:** <https://drive.google.com/drive/folders/1atma_uZMZzU-VxVqn3-PWwsz-sfBBmW7?usp=sharing/>
 - **Tema:** *Guardians of the Digital Space – Empowering Today's Generation Toward a Safer Cyber Ecosystem*
 - **Kompetisi:** Web Development Competition MIT-Week 2026
