@@ -437,14 +437,26 @@
           location.replace("login.html");
           return;
         }
-        const { data, error } = await supabaseClient
+        let { data, error } = await supabaseClient
           .from("analysis_history")
           .select("id, message, score, level, status, created_at")
           .eq("user_id", session.user.id)
           .order("created_at", { ascending: false })
           .limit(100);
 
-        if (error) {
+        // DB lama belum punya kolom status (setup.sql belum dijalankan ulang):
+        // tetap tampilkan riwayat tanpa dropdown status.
+        if (error && error.code === "42703") {
+          ({ data, error } = await supabaseClient
+            .from("analysis_history")
+            .select("id, message, score, level, created_at")
+            .eq("user_id", session.user.id)
+            .order("created_at", { ascending: false })
+            .limit(100));
+          data = (data || []).map((h) => ({ ...h, status: "unreviewed" }));
+        }
+
+        if (error || !data) {
           console.warn("Gagal muat riwayat:", error);
           $("#rows").innerHTML = `<tr><td class="py-5 px-4 text-muted" colspan="3">Riwayat tidak bisa dimuat. Muat ulang halaman atau login kembali.</td></tr>`;
           return;
