@@ -8,7 +8,7 @@ Tempel isi pesan atau unggah screenshot chat, lalu aplikasi memberi tahu tingkat
 [![Repo](https://img.shields.io/badge/Repository-GitHub-181717?style=for-the-badge&logo=github)](https://github.com/Lodraalbar/Spot-the-Scam-Cek-Pesan-Penipuan)
 
 - **Live Deployment:** <https://lodraalbar.github.io/Spot-the-Scam-Cek-Pesan-Penipuan/>
-- **Video Demonstrasi:** _`<isi tautan video maks. 5 menit di sini>`_
+- **Video Demonstrasi:** <https://drive.google.com/drive/folders/1atma_uZMZzU-VxVqn3-PWwsz-sfBBmW7?usp=sharing/>
 - **Tema:** *Guardians of the Digital Space – Empowering Today's Generation Toward a Safer Cyber Ecosystem*
 - **Kompetisi:** Web Development Competition MIT-Week 2026
 
@@ -68,7 +68,6 @@ Spot the Scam menjawab itu dengan empat prinsip:
 | **Riwayat analisis** | Setiap pemeriksaan tersimpan per akun dan ditampilkan di `history.html` (waktu relatif, skor, isi pesan, status yang bisa diubah) |
 | **Sinkron gambar ↔ teks** | Screenshot yang di-OCR mengisi kolom teks; bila teks dikosongkan, gambar ikut dilepas agar bisa uji ulang tanpa gambar |
 | **Akun & sesi** | Daftar/masuk dengan Supabase Auth; halaman utama tidak dapat dibuka tanpa sesi aktif, halaman login otomatis dialihkan bila sudah masuk |
-| **Lupa kata sandi** | Tautan pada form masuk membuka `reset-password.html`: minta tautan reset via email, buka tautannya, lalu set kata sandi baru; tautan kedaluwarsa ditangani dengan pesan yang jelas |
 | **Antarmuka responsif** | Tata letak adaptif (5 breakpoint di halaman utama, 3 di halaman login), tema gelap berkontras tinggi, status hasil dibedakan warna **dan** teks |
 
 **Akun demo:** `qc.live.1794250398@example.com` / `QcLive123!`
@@ -139,7 +138,7 @@ Pengguna ──►│ login.html   signUp / signIn  ──► Supabase Auth (JWT
                                    analysis_history (riwayat) · reports (laporan)
 ```
 
-- **Autentikasi** ditangani Supabase Auth; aplikasi tidak pernah menyimpan kata sandi. Registrasi memakai `supabase.auth.signUp()`, username disimpan pada `user_metadata`. Reset kata sandi memakai `resetPasswordForEmail()` dengan `redirectTo` ke `reset-password.html`; tautan email membawa `type=recovery`, halaman menampilkan form sandi baru lalu memanggil `updateUser({ password })` dan `signOut()` agar pengguna masuk ulang.
+- **Autentikasi** ditangani Supabase Auth; aplikasi tidak pernah menyimpan kata sandi. Registrasi memakai `supabase.auth.signUp()`, username disimpan pada `user_metadata`.
 - **Proteksi rute** di sisi klien: dokumen disembunyikan (`visibility: hidden`) lalu sesi diperiksa hingga 15× dengan jeda 150 ms; tanpa sesi, pengguna dialihkan ke `login.html`. Halaman login melakukan pengecekan sebaliknya.
 - **Sinkronisasi tabel `users`**: karena `analysis_history` dan `reports` mereferensikan `public.users(id)`, fungsi `ensureUserRow()` menyalin data pengguna Supabase Auth ke tabel tersebut (`upsert` + `ignoreDuplicates`) saat pertama kali dibutuhkan. `userReady()` melakukan percobaan ulang bila sesi belum pulih setelah reload — perbaikan atas bug riwayat kosong yang ditemukan saat pengujian.
 - **Penyimpanan hasil** dilakukan sekali setelah analisis selesai (`saveAnalysisHistory()`), bukan di dalam `render()`, agar tidak ada baris ganda.
@@ -149,28 +148,17 @@ Pengguna ──►│ login.html   signUp / signIn  ──► Supabase Auth (JWT
 
 Tidak ada proses build — cukup berkas statis.
 
-**A. Menjalankan lokal**
-
-```bash
-git clone https://github.com/Lodraalbar/Spot-the-Scam-Cek-Pesan-Penipuan.git
-cd Spot-the-Scam-Cek-Pesan-Penipuan
-python -m http.server 8000
-```
-
-Buka <http://localhost:8000/lomba/login.html>. (Membuka `home.html` lewat `file://` juga bisa, tetapi server lokal lebih dekat dengan kondisi produksi: CDN, web worker OCR, dan penyimpanan sesi.)
-
-**B. Menyiapkan backend Supabase sendiri**
+**A. Menyiapkan backend Supabase sendiri**
 
 1. Buat project di <https://supabase.com>.
 2. Buka **SQL Editor**, jalankan seluruh isi [`setup.sql`](setup.sql). Berkas ini membuat tiga tabel, mengaktifkan RLS, dan memasang policy per pengguna.
 3. Buka **Authentication → Sign In / Providers → Email**, matikan **Confirm email** agar pendaftaran langsung dapat dipakai.
-4. Salin **Project URL** dan **anon public key** (Settings → API) ke `lomba/login.html`, `lomba/home.html`, dan `lomba/reset-password.html` — nilainya harus sama di ketiga berkas.
-5. Buka **Authentication → URL Configuration**: isi **Site URL** dengan alamat situs, dan tambahkan `https://<domain-kamu>/lomba/reset-password.html` ke **Redirect URLs**. Tanpa ini, tautan reset kata sandi akan ditolak Supabase.
-6. Jalankan ulang server, lalu daftar akun baru.
+4. Salin **Project URL** dan **anon public key** (Settings → API) ke `lomba/login.html` dan `lomba/home.html` — nilainya harus sama di kedua berkas.
+5. Jalankan ulang server, lalu daftar akun baru.
 
-**C. Deploy**
+**B. Deploy**
 
-Repo ini sudah dideploy sebagai situs statis. Untuk men-deploy ulang: push ke `main`, lalu **Settings → Pages → Source: Deploy from a branch → Branch `main`, folder `/`**. `index.html` di root berfungsi sebagai pengalih ke `lomba/login.html`. Vercel/Netlify dapat memakai repo yang sama tanpa konfigurasi tambahan (tanpa build command, output directory = root).
+Repo ini sudah dideploy sebagai situs statis. Untuk men-deploy ulang: push ke `main`, lalu **Settings → Pages → Source: Deploy from a branch → Branch `main`, folder `/`**. `index.html` di root berfungsi sebagai pengalih ke `lomba/login.html`. Vercel dapat memakai repo yang sama tanpa konfigurasi tambahan (tanpa build command, output directory = root).
 
 ## 7. Skema database
 
@@ -191,7 +179,6 @@ RLS aktif pada ketiga tabel. Policy terpasang: pengguna hanya dapat `SELECT` bar
 ├── docs/                          # Tangkapan layar untuk dokumentasi
 ├── lomba/
 │   ├── login.html                 # Daftar & masuk (Supabase Auth)
-│   ├── reset-password.html        # Lupa kata sandi: minta tautan + set sandi baru
 │   ├── home.html                  # Analisis teks/gambar + OCR, laporan
 │   ├── history.html               # Riwayat pemeriksaan + status per baris
 │   └── logo.png
