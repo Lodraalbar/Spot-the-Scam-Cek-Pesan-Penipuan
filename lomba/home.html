@@ -7,7 +7,10 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <title>Spot the Scam — Cek Pesan Penipuan</title>
-    <meta name="description" content="Tempel pesan atau unggah screenshot untuk mendeteksi penipuan digital: nomor rekening palsu, tautan berbahaya, dan modus undian." />
+    <meta
+      name="description"
+      content="Tempel pesan atau unggah screenshot untuk mendeteksi penipuan digital: nomor rekening palsu, tautan berbahaya, dan modus undian."
+    />
     <link
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
@@ -16,8 +19,8 @@
       href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=DM+Sans:wght@400;500;700&family=Yellowtail&display=swap"
       rel="stylesheet"
     />
-      <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
       :root {
         --bg: #f6f5f0;
@@ -77,6 +80,7 @@
         text-transform: uppercase;
         line-height: 1.1;
         margin: 0;
+        overflow-wrap: break-word;
       }
       .scr {
         font-family: Yellowtail, cursive;
@@ -128,7 +132,8 @@
         font-style: normal;
         font-size: 14px;
       }
-      /* navbar */
+
+      /* navbar & hamburger */
       .nav {
         position: sticky;
         top: 10px;
@@ -150,19 +155,17 @@
       .lg {
         display: flex;
         align-items: center;
-        font-size: 25px;
-        letter-spacing: 0.1em;
+        font-size: 22px;
+        letter-spacing: 0.05em;
         font-weight: 500;
         color: inherit;
         text-decoration: none;
         white-space: nowrap;
       }
       .lg img {
-        width: 70px;
+        width: 60px;
         height: auto;
-        color: var(--bg);
-        padding: 2px 8px;
-        letter-spacing: 0;
+        padding: 2px 6px;
       }
       .pill {
         display: flex;
@@ -170,15 +173,16 @@
         background: color-mix(in srgb, var(--ink) 8%, transparent);
         padding: 6px;
         border-radius: 40px;
+        flex-wrap: wrap;
       }
       .pill a,
       .pill button {
         border: 0;
         background: none;
         color: var(--ink);
-        padding: 8px 18px;
+        padding: 8px 16px;
         border-radius: 30px;
-        font-size: 16px;
+        font-size: 15px;
         text-decoration: none;
         white-space: nowrap;
         transition:
@@ -189,45 +193,102 @@
       .pill a:not(.on):hover,
       .pill button:hover {
         background: color-mix(in srgb, var(--ink) 16%, transparent);
-        box-shadow: inset 0 0 0 5px
-          color-mix(in srgb, var(--ink) 7%, transparent);
       }
       .pill a.on {
         background: #2b2a27;
         color: #fff;
-      }
-      .pill a.on:hover {
-        box-shadow: inset 0 0 0 5px #fff1;
       }
       .rt {
         display: flex;
         gap: 10px;
         align-items: center;
       }
-      .cta {
-        display: inline-flex;
+
+      /* Hamburger Menu Styling */
+      .hamburger-btn {
+        display: none;
+        background: var(--card);
+        border: 3px solid var(--ink);
+        border-radius: 12px;
+        width: 44px;
+        height: 44px;
+        font-size: 24px;
         align-items: center;
-        background: #2b2a27;
-        color: #fff;
-        border-radius: 40px;
-        padding: 11px 22px;
-        font-size: 14px;
-        text-decoration: none;
-        transition: background 0.2s;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 3px 3px 0 var(--ink);
       }
-      .cta i {
-        width: 38px;
-        height: 38px;
+      .mobile-nav-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 95;
+      }
+      .mobile-nav-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .mobile-nav-drawer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 280px;
+        max-width: 80%;
+        background: var(--card);
+        border-right: 4px solid var(--ink);
+        z-index: 105;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        transform: translateX(-105%);
+        transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+      }
+      .mobile-nav-drawer.open {
+        transform: none;
+      }
+      .mobile-nav-drawer .close-drawer {
+        align-self: flex-end;
+        background: var(--bg);
+        border: 2px solid var(--ink);
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
-        background: #fff;
-        color: #1a1a1a;
+        font-size: 18px;
         display: grid;
         place-items: center;
-        font-style: normal;
+        cursor: pointer;
+        margin-bottom: 10px;
       }
-      .cta:hover {
-        background: #000;
+      .mobile-nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
       }
+      .mobile-nav-links a,
+      .mobile-nav-links button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 12px 16px;
+        background: var(--bg);
+        border: 2px solid var(--ink);
+        border-radius: 12px;
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .mobile-nav-links a:hover,
+      .mobile-nav-links button:hover {
+        background: var(--lime);
+      }
+
       /* hero */
       .hero {
         text-align: center;
@@ -250,7 +311,7 @@
         margin-bottom: 22px;
       }
       .hero h1 {
-        font-size: clamp(34px, 7vw, 84px);
+        font-size: clamp(32px, 7vw, 84px);
         max-width: 15ch;
         margin: 0 auto 34px;
         position: relative;
@@ -285,6 +346,7 @@
           radial-gradient(circle at 80% 100%, #ece9df 50px, transparent 61px),
           radial-gradient(circle at 74% 130%, #ece9df 50px, transparent 61px);
       }
+
       /* analyzer */
       .cek {
         max-width: 1100px;
@@ -292,7 +354,7 @@
         padding: 40px 18px 80px;
       }
       .cek > h2 {
-        font-size: clamp(28px, 4.5vw, 52px);
+        font-size: clamp(26px, 4.5vw, 52px);
         text-align: center;
         margin-bottom: 8px;
       }
@@ -408,6 +470,11 @@
         font-size: 12px;
         font-weight: 700;
       }
+      .chip.bad {
+        background: #fde8e4;
+        color: var(--red);
+      }
+
       /* hasil */
       .res {
         max-width: 1100px;
@@ -531,6 +598,7 @@
         background: #1f9d5722;
         color: var(--ok);
       }
+
       /* stack */
       .stack {
         max-width: 1180px;
@@ -615,6 +683,7 @@
         border-collapse: collapse;
         width: 100%;
         font-size: 14px;
+        white-space: nowrap;
       }
       th,
       td {
@@ -644,6 +713,7 @@
         display: flex;
         gap: 8px;
         margin-bottom: 12px;
+        flex-wrap: wrap;
       }
       .chips button {
         border: 2px solid #fff;
@@ -689,7 +759,10 @@
         place-items: center;
         font-weight: 700;
         top: 5px;
+        position: absolute;
+        left: 0;
       }
+
       /* footer */
       footer {
         position: relative;
@@ -823,6 +896,7 @@
         text-decoration: none;
         border-bottom: 1px solid currentColor;
       }
+
       /* drawer */
       .ov {
         position: fixed;
@@ -869,6 +943,7 @@
         width: 38px;
         height: 38px;
         border-radius: 50%;
+        cursor: pointer;
       }
       .hl {
         background: var(--bg);
@@ -881,36 +956,14 @@
         font-size: 14px;
         overflow-wrap: anywhere;
       }
-      /* responsive */
-      @media (max-width: 860px) {
-        .nav {
-          gap: 8px;
-          padding: 8px 10px;
+
+      /* responsive & hamburger rule */
+      @media (max-width: 550px) {
+        .nav .pill {
+          display: none !important;
         }
-        .cta {
-          display: none;
-        }
-        .pill {
-          flex: 1;
-          min-width: 0;
-          overflow-x: auto;
-          justify-content: flex-end;
-          scrollbar-width: none;
-        }
-        .pill a,
-        .pill button {
-          padding: 8px 12px;
-          font-size: 13px;
-          white-space: nowrap;
-        }
-        .lg {
-          font-size: 13px;
-          letter-spacing: 0.06em;
-          flex-shrink: 0;
-        }
-        .lg img {
-          width: 48px;
-          padding: 0;
+        .hamburger-btn {
+          display: flex !important;
         }
         .hero {
           padding: 50px 16px 100px;
@@ -931,7 +984,7 @@
           margin-bottom: 50vh;
         }
         .tab {
-          left: calc(12px + var(--i) * 100px);
+          left: 16px;
           padding: 8px 12px;
           font-size: 12px;
         }
@@ -959,19 +1012,10 @@
           flex-direction: column;
         }
       }
+
       @media (max-width: 520px) {
         .lg {
-          font-size: 0;
-          gap: 0;
-        }
-        .pill {
-          padding: 4px;
-          gap: 0;
-        }
-        .pill a,
-        .pill button {
-          padding: 8px;
-          font-size: 12px;
+          font-size: 16px;
         }
         .btn {
           font-size: 13px;
@@ -1010,13 +1054,20 @@
           padding: 7px 8px;
           font-size: 12px;
         }
-        .st {
-          width: 44px;
-          height: 44px;
-          font-size: 20px;
-          border-width: 3px;
+      }
+
+      @media (max-width: 360px) {
+        .cek,
+        .stack,
+        .res {
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+        .box {
+          padding: 10px;
         }
       }
+
       @media (max-height: 600px) {
         .sc {
           position: relative;
@@ -1034,40 +1085,268 @@
           transform: none !important;
         }
       }
+
+      .stack {
+        isolation: isolate;
+      }
+      .res {
+        overflow-x: clip;
+      }
+
+      @media (max-width: 860px) {
+        :root {
+          --gutter: 18px;
+        }
+        .cek,
+        .res,
+        .stack {
+          padding-left: var(--gutter);
+          padding-right: var(--gutter);
+        }
+        footer {
+          margin-top: 80px; /* jarak aman card ketiga → footer */
+        }
+      }
+
+      @media (max-width: 550px) {
+        :root {
+          --gutter: 22px;
+        }
+        .nav {
+          width: calc(100% - 2 * 16px);
+        }
+        .hero {
+          padding-left: var(--gutter);
+          padding-right: var(--gutter);
+        }
+        .box,
+        .fr {
+          box-shadow: 6px 6px 0 var(--ink);
+        }
+        .ft {
+          padding-left: var(--gutter);
+          padding-right: var(--gutter);
+        }
+        .fb {
+          padding-left: var(--gutter);
+          padding-right: var(--gutter);
+        }
+      }
+
+      @media (max-width: 380px) {
+        :root {
+          --gutter: 18px;
+        }
+        .box {
+          padding: 14px;
+        }
+        .nav {
+          padding: 8px 10px;
+          gap: 8px;
+        }
+        .lg {
+          font-size: 13px;
+        }
+        .lg img {
+          width: 42px;
+          padding: 2px 4px;
+        }
+        .rt {
+          gap: 8px;
+        }
+      }
+
+      @media (max-height: 600px) {
+        .sc,
+        .sc:nth-child(n) {
+          position: relative;
+          top: 0;
+        }
+      }
     </style>
   </head>
   <body>
     <header class="nav">
       <div class="lg"><img src="logo.png" alt="Logo STS" />SPOT THE SCAM</div>
+
+      <!-- Menu Desktop -->
       <nav class="pill" aria-label="Navigasi">
-        <a href="#home">Beranda</a><a href="#cek">Cek Pesan</a
-        ><a href="#panduan">Panduan</a><button data-dr>Darurat</button>
+        <a href="#home">Beranda</a>
+        <a href="#cek">Cek Pesan</a>
+        <a href="#panduan">Panduan</a>
+        <button data-dr>Darurat</button>
       </nav>
+
       <div class="rt">
-        <!--dropdown (mental gua down ngadepin ni error)-->
-        <div class="acc-wrapper" style="position: relative;">
-          <button class="acc-btn" id="accBtn" aria-label="Menu Akun" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: var(--card); border: 3px solid var(--ink); cursor: pointer; box-shadow: 3px 3px 0 var(--ink); padding: 0; overflow: hidden; transition: transform 0.15s;">
-            <!--icon user-->
-            <i class='bx bx-user' id="accIcon" style="font-size: 22px; color: var(--ink);"></i>
-            <img id="accImg" src="" alt="Profil" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+        <!-- Akun Dropdown -->
+        <div class="acc-wrapper" style="position: relative">
+          <button
+            class="acc-btn"
+            id="accBtn"
+            aria-label="Menu Akun"
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 44px;
+              height: 44px;
+              border-radius: 50%;
+              background: var(--card);
+              border: 3px solid var(--ink);
+              cursor: pointer;
+              box-shadow: 3px 3px 0 var(--ink);
+              padding: 0;
+              overflow: hidden;
+              transition: transform 0.15s;
+            "
+          >
+            <i
+              class="bx bx-user"
+              id="accIcon"
+              style="font-size: 22px; color: var(--ink)"
+            ></i>
+            <img
+              id="accImg"
+              src=""
+              alt="Profil"
+              style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: none;
+              "
+            />
           </button>
 
-          <!--kalau udh login, dropdown muncul-->
-          <div class="acc-dropdown" id="accDropdown" style="position: absolute; right: 0; top: 54px; width: 280px; background: var(--card); border: 3px solid var(--ink); border-radius: 20px; box-shadow: 6px 6px 0 var(--ink); padding: 16px; display: none; z-index: 100; text-align: left;">
-            <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 2px solid color-mix(in srgb, var(--ink) 10%, transparent); margin-bottom: 10px;">
-              <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--lime); border: 2px solid var(--ink); display: grid; place-items: center; font-weight: bold;" id="userInitial">U</div>
+          <div
+            class="acc-dropdown"
+            id="accDropdown"
+            style="
+              position: absolute;
+              right: 0;
+              top: 54px;
+              width: 280px;
+              background: var(--card);
+              border: 3px solid var(--ink);
+              border-radius: 20px;
+              box-shadow: 6px 6px 0 var(--ink);
+              padding: 16px;
+              display: none;
+              z-index: 100;
+              text-align: left;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding-bottom: 12px;
+                border-bottom: 2px solid
+                  color-mix(in srgb, var(--ink) 10%, transparent);
+                margin-bottom: 10px;
+              "
+            >
+              <div
+                style="
+                  width: 40px;
+                  height: 40px;
+                  border-radius: 50%;
+                  background: var(--lime);
+                  border: 2px solid var(--ink);
+                  display: grid;
+                  place-items: center;
+                  font-weight: bold;
+                "
+                id="userInitial"
+              >
+                U
+              </div>
               <div>
-                <div style="font-weight: 700; font-size: 15px;" id="userName">Pengguna</div>
-                <div style="font-size: 12px; color: var(--mut);" id="userEmail">user@email.com</div>
+                <div style="font-weight: 700; font-size: 15px" id="userName">
+                  Pengguna
+                </div>
+                <div style="font-size: 12px; color: var(--mut)" id="userEmail">
+                  user@email.com
+                </div>
               </div>
             </div>
-            <a href="#riwayat" id="menuRiwayat" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.2s;"><i class='bx bx-history' style="font-size: 18px;"></i> Lihat Riwayat</a>
-            <button id="menuLogout" style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: #fde8e4; color: var(--red); border: none; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 4px;"><i class='bx bx-log-out' style="font-size: 18px;"></i> Keluar</button>
+            <a
+              href="#riwayat"
+              id="menuRiwayat"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 12px;
+                border-radius: 10px;
+                color: var(--ink);
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 500;
+              "
+              ><i class="bx bx-history" style="font-size: 18px"></i> Lihat
+              Riwayat</a
+            >
+            <button
+              id="menuLogout"
+              style="
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 12px;
+                border-radius: 10px;
+                background: #fde8e4;
+                color: var(--red);
+                border: none;
+                font: inherit;
+                font-size: 14px;
+                font-weight: 700;
+                cursor: pointer;
+                margin-top: 4px;
+              "
+            >
+              <i class="bx bx-log-out" style="font-size: 18px"></i> Keluar
+            </button>
           </div>
         </div>
-      </div>
+
+        <!-- Tombol Hamburger HP -->
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Buka Menu">
+          <i class="bx bx-menu"></i>
+        </button>
       </div>
     </header>
+
+    <!-- Drawer Mobile Menu -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+    <aside
+      class="mobile-nav-drawer"
+      id="mobileNavDrawer"
+      aria-label="Menu Navigasi Mobile"
+    >
+      <button class="close-drawer" id="closeDrawerBtn" aria-label="Tutup Menu">
+        ✕
+      </button>
+      <div
+        style="
+          font-family: &quot;Bowlby One&quot;;
+          font-size: 18px;
+          margin-bottom: 5px;
+        "
+      >
+        MENU UTAMA
+      </div>
+      <div class="mobile-nav-links">
+        <a href="#home" class="mob-link">Beranda</a>
+        <a href="#cek" class="mob-link">Cek Pesan</a>
+        <a href="#panduan" class="mob-link">Panduan</a>
+        <button data-dr class="mob-link" style="text-align: left">
+          Darurat 🚨
+        </button>
+      </div>
+    </aside>
 
     <section class="hero" id="home">
       <div class="bdg">🛡 Detektor penipuan untuk semua orang</div>
@@ -1084,14 +1363,14 @@
         mencurigakan.
       </p>
       <div class="box">
-        <label class="dz" id="dz"
-          ><input
+        <label class="dz" id="dz">
+          <input
             type="file"
             accept="image/*"
             id="file"
             aria-label="Unggah screenshot"
           />
-        <div class="dzc" id="dzc"></div>
+          <div class="dzc" id="dzc"></div>
         </label>
         <textarea
           id="txt"
@@ -1148,8 +1427,8 @@
             <li>Brand resmi tidak minta OTP atau APK</li>
           </ul>
           <div class="chips">
-            <button aria-pressed="true" data-t="g">✔ Brand resmi</button
-            ><button aria-pressed="true" data-t="r">
+            <button aria-pressed="true" data-t="g">✔ Brand resmi</button>
+            <button aria-pressed="true" data-t="r">
               ✖ Panitia/event palsu
             </button>
           </div>
@@ -1212,7 +1491,7 @@
       <div class="wh">
         <svg viewBox="0 0 1000 1000" id="wsv" aria-hidden="true"></svg>
       </div>
-      
+
       <div class="ft">
         <h2>
           Jadi yang <span class="scr">pertama</span><br />menolak penipuan
@@ -1229,12 +1508,17 @@
           </div>
         </div>
         <div class="fb-bot">
-          <span>Dikembangkan oleh 
-            <a href=" https://id.linkedin.com/in/lodra-kalimasada-adhyaksa-albar-b46176312">Lodra Kalimasada Adhyaksa Alba</a> dan 
-            <a href="www.linkedin.com/in/hadainasilmidamanik">Hadaina Silmi Damanik</a>
-          
+          <span
+            >Dikembangkan oleh
+            <a
+              href="https://id.linkedin.com/in/lodra-kalimasada-adhyaksa-albar-b46176312"
+              >Lodra Kalimasada Adhyaksa Albar</a
+            >
+            dan
+            <a href="https://www.linkedin.com/in/hadainasilmidamanik"
+              >Hadaina Silmi Damanik</a
+            >
           </span>
-         
           <span>© 2026 Spot The Scam. Seluruh hak cipta dilindungi.</span>
         </div>
       </div>
@@ -1268,9 +1552,16 @@
         Nomor &amp; kanal aduan
       </h3>
       <div class="hl">OJK <b>157</b></div>
-      <div class="hl">Aduan nomor <a href="https://aduannomor.id/"><b>aduannomor.id</b></a></div>
-      <div class="hl">Cek rekening <a href="https://cekrekening.id/"><b>cekrekening.id</b></a></div>
-      <div class="hl">Polisi siber <a href="https://patrolisiber.id/"><b>patrolisiber.id</b></a></div>
+      <div class="hl">
+        Aduan nomor <a href="https://aduannomor.id/"><b>aduannomor.id</b></a>
+      </div>
+      <div class="hl">
+        Cek rekening <a href="https://cekrekening.id/"><b>cekrekening.id</b></a>
+      </div>
+      <div class="hl">
+        Polisi siber
+        <a href="https://patrolisiber.id/"><b>patrolisiber.id</b></a>
+      </div>
       <div class="hl">Bank Anda <b>call center di kartu</b></div>
       <p style="color: var(--mut); font-size: 13px">
         Verifikasi kontak di situs resmi sebelum menghubungi.
@@ -1279,13 +1570,19 @@
 
     <script>
       const SUPABASE_URL = "https://aadgytxzojdniewtnurk.supabase.co";
-            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhZGd5dHh6b2pkbmlld3RudXJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNjU5NDgsImV4cCI6MjEwOTc0MTk0OH0.eK_ZNRU3_DisdsBG_4l3L43ZXeiZy8H1UhSaeywwW_U";
-            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhZGd5dHh6b2pkbmlld3RudXJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNjU5NDgsImV4cCI6MjEwOTc0MTk0OH0.eK_ZNRU3_DisdsBG_4l3L43ZXeiZy8H1UhSaeywwW_U";
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
 
       /* Guard: halaman ini hanya untuk user yang sudah login */
       (async function guard() {
         for (let i = 0; i < 15; i++) {
-          const { data: { session } } = await supabaseClient.auth.getSession();
+          const {
+            data: { session },
+          } = await supabaseClient.auth.getSession();
           if (session) {
             document.documentElement.style.visibility = "";
             return;
@@ -1296,161 +1593,8 @@
       })();
       document.documentElement.style.visibility = "hidden";
 
-      /* ===== LOGIKA AKUN & DROPDOWN ===== */
-     document.addEventListener("DOMContentLoaded", async function() {
-        let isLogin = localStorage.getItem('isLoggedIn') === 'true';
-        let userName = localStorage.getItem('userName') || 'Pengguna';
-        let userEmail = localStorage.getItem('userEmail') || 'user@email.com';
-
-        const accBtn = document.getElementById('accBtn');
-        const accDropdown = document.getElementById('accDropdown');
-        const accIcon = document.getElementById('accIcon');
-        const accImg = document.getElementById('accImg');
-        const userNameEl = document.getElementById('userName');
-        const userEmailEl = document.getElementById('userEmail');
-        const userInitialEl = document.getElementById('userInitial');
-
-        if (isLogin) {
-          if (accIcon) {
-            accIcon.style.display = 'none';
-          }
-          // Tampilkan icon user terverifikasi atau ubah tampilannya
-          let verifiedIcon = document.createElement('i');
-          verifiedIcon.className = 'bx bx-user-check';
-          verifiedIcon.style.cssText = 'font-size: 22px; color: var(--ink);';
-          if (accBtn && !accBtn.querySelector('.bx-user-check')) {
-            accBtn.appendChild(verifiedIcon);
-          }
-
-          if (userNameEl) userNameEl.textContent = userName;
-          if (userEmailEl) userEmailEl.textContent = userEmail;
-          if (userInitialEl) userInitialEl.textContent = userName.charAt(0).toUpperCase();
-        }
-
-        if (accBtn) {
-          accBtn.onclick = (e) => {
-            e.stopPropagation();
-            if (!isLogin) {
-              window.location.href = 'login.html';
-            } else {
-              if (accDropdown) {
-                const isOpen = accDropdown.style.display === 'block';
-                accDropdown.style.display = isOpen ? 'none' : 'block';
-              }
-            }
-          };
-        }
-
-        document.addEventListener('click', () => {
-          if (accDropdown) accDropdown.style.display = 'none';
-        });
-
-        if (accDropdown) {
-          accDropdown.onclick = (e) => e.stopPropagation();
-        }
-
-        const menuLogout = document.getElementById('menuLogout');
-        if (menuLogout) {
-          menuLogout.onclick = async () => {
-            await supabaseClient.auth.signOut();
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('userName');
-            localStorage.removeItem('userEmail');
-            window.location.reload();
-          };
-        }
-
-        /* HANDLER MENU RIWAYAT */
-        const menuRiwayat = document.getElementById('menuRiwayat');
-        if (menuRiwayat) {
-          menuRiwayat.onclick = async (e) => {
-            e.preventDefault();
-            const hist = await loadHistory();
-            let html = '<div style="max-height: 400px; overflow-y: auto;">';
-            if (hist.length === 0) {
-              html += '<p style="color: var(--mut); text-align: center; padding: 20px;">Belum ada riwayat analisis</p>';
-            } else {
-              hist.forEach((h) => {
-                const time = new Date(h.created_at).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                html += `<div style="padding: 12px; border-bottom: 1px solid var(--line); cursor: pointer;" onclick="$('#txt').value = ${JSON.stringify(h.message).replace(/"/g, '&quot;')}; $("#go").click();">
-                  <div style="font-weight: 500; color: var(--ink);">Skor ${h.score}/100 • ${h.level.toUpperCase()}</div>
-                  <div style="font-size: 14px; color: var(--mut);">${esc(h.message.substring(0, 50))}...</div>
-                  <div style="font-size: 12px; color: var(--muted);">${time}</div>
-                </div>`;
-              });
-            }
-            html += '</div>';
-            alert('Riwayat Analisis:\n\n' + hist.map(h => `[${h.level}] ${h.score}/100 - ${h.message.substring(0, 40)}...`).join('\n'));
-          };
-        }
-      });
-
-      /*logika*/
-      const DB = {
-        blacklist: [
-          { no: "081234567890", reports: 128, tag: "Panitia event palsu" },
-          { no: "085711112222", reports: 87, tag: "Undian berhadiah" },
-          { no: "081399990000", reports: 203, tag: "Kurir palsu" },
-        ],
-        official: [
-          "tokopedia.com",
-          "shopee.co.id",
-          "bca.co.id",
-          "bri.co.id",
-          "gojek.com",
-        ],
-        flags: [
-          {
-            re: /\.apk\b/i,
-            w: 100,
-            danger: 1,
-            t: "Meminta memasang file .apk",
-          },
-          {
-            re: /(transfer|kirim)[\s\S]{0,25}(pribadi|rekening)/i,
-            w: 40,
-            t: "Meminta transfer ke rekening pribadi",
-          },
-          {
-            re: /(otp|kode verifikasi|\bpin\b)/i,
-            w: 40,
-            t: "Meminta kode OTP/PIN",
-          },
-          {
-            re: /(hadiah|undian|menang|selamat)/i,
-            w: 30,
-            t: "Iming-iming hadiah atau undian",
-          },
-          {
-            re: /(segera|24 jam|hari ini juga|terakhir)/i,
-            w: 20,
-            t: "Tekanan waktu (urgensi palsu)",
-          },
-          {
-            re: /(bit\.ly|tinyurl|s\.id|cutt\.ly)/i,
-            w: 30,
-            t: "Tautan dipendekkan",
-          },
-          {
-            re: /(kirim|transfer|bayar|setor)[\s\S]{0,40}(\bdp\b|uang muka|biaya admin|biaya kirim|pajak)/i,
-            w: 30,
-            t: "Meminta pembayaran di muka (DP/biaya)",
-          },
-          {
-            re: /(rekening|norek|atas nama|\ba\.n\.)\b[\s\S]{0,40}\d{6,}|(transfer|kirim|bayar|setor)[\s\S]{0,30}\d{8,}/i,
-            w: 30,
-            t: "Nomor rekening pribadi disebutkan",
-          },
-        ],
-        examples: [
-          "Selamat! Anda terpilih jadi panitia event. Instal file undangan_event.apk lalu hubungi 0812-3456-7890",
-          "Halo kak, paket kamu tertahan. Segera konfirmasi OTP ke bit.ly/cek-paket dalam 24 jam",
-          "Pesanan Tokopedia #TP2291 sudah dikirim. Lacak di tokopedia.com/lacak",
-        ],
-      };
-      /**/
       const $ = (s) => document.querySelector(s);
-       const esc = (s) =>
+      const esc = (s) =>
         String(s).replace(
           /[&<>"']/g,
           (c) =>
@@ -1466,11 +1610,10 @@
       function setState(p) {
         Object.assign(state, p);
         userReady();
-      render();
+        render();
       }
-      
-      /*bagian analisis*/
-     const TLD =
+
+      const TLD =
         "com|co\\.id|id|net|org|io|ly|link|xyz|top|info|biz|app|site|online|cc|ws|gl";
       const URL_RE = new RegExp(
         "\\b(?:https?:\\/\\/)?(?:[a-z0-9-]+\\.)+(?:" +
@@ -1534,7 +1677,7 @@
           "Tidak ada tanda penipuan terdeteksi. Tetap waspada pada permintaan data.",
         ],
       };
-      /* Pastikan baris public.users ada (FK analysis_history/reports -> users.id) */
+
       let ensureUserReady = null;
       function userReady() {
         if (!ensureUserReady) {
@@ -1547,38 +1690,42 @@
       }
       async function ensureUserRow() {
         try {
-          const { data: { user } } = await supabaseClient.auth.getUser();
+          const {
+            data: { user },
+          } = await supabaseClient.auth.getUser();
           if (!user) return null;
-          const { error } = await supabaseClient.from('users').upsert(
+          const { error } = await supabaseClient.from("users").upsert(
             {
               id: user.id,
               email: user.email,
-              username: user.user_metadata?.username || user.email.split('@')[0],
+              username:
+                user.user_metadata?.username || user.email.split("@")[0],
             },
-            { onConflict: 'id', ignoreDuplicates: true }
+            { onConflict: "id", ignoreDuplicates: true },
           );
-          if (error) console.warn('ensureUserRow upsert:', error.message);
+          if (error) console.warn("ensureUserRow upsert:", error.message);
           return user.id;
         } catch (e) {
-          console.warn('ensureUserRow gagal:', e);
+          console.warn("ensureUserRow gagal:", e);
           return null;
         }
       }
 
-      /*render anjay*/
       async function saveAnalysisHistory(r) {
         try {
           const uid = await userReady();
           if (!uid) return;
           const { error } = await supabaseClient
-            .from('analysis_history')
-            .insert([{
-              user_id: uid,
-              message: $("#txt").value.trim(),
-              score: r.score,
-              level: r.lvl,
-              flags: r.flags
-            }]);
+            .from("analysis_history")
+            .insert([
+              {
+                user_id: uid,
+                message: $("#txt").value.trim(),
+                score: r.score,
+                level: r.lvl,
+                flags: r.flags,
+              },
+            ]);
           if (error) console.warn("Gagal simpan history:", error);
         } catch (e) {
           console.warn("Gagal simpan history:", e);
@@ -1597,43 +1744,46 @@
             : s.img
               ? `<img src="${s.img}" alt="Pratinjau screenshot"><div><span class="chip ${s.ocr === "fail" ? "bad" : ""}">${s.ocr === "fail" ? "Teks tidak terbaca, ketik manual" : "Teks terbaca otomatis"}</span></div>`
               : '<div class="ic">+</div><b>Tarik gambar ke sini</b><br><span style="color:var(--mut)">atau klik untuk memilih gambar</span>';
-        if (!(s.status === "done" && s.result)) $("#hasil").classList.remove("show");
+        if (!(s.status === "done" && s.result))
+          $("#hasil").classList.remove("show");
         if (s.status === "done" && s.result) {
-                  const r = s.result,
-                    [ti, su] = VT[r.lvl];
-                  const phoneLis = r.phones
-                    .filter((p) => !r.hits.some((h) => h.no === p))
-                    .map(
-                      (p) =>
-                        `<li><span class="tag g">Belum dilaporkan</span>${esc(p)}</li>`,
-                    )
-                    .join("");
-                  $("#pair").innerHTML =
-                    `<div class="fr rv v-${r.lvl}"><div class="tl"><span class="r ${r.lvl === "red" ? "a" : ""}"></span><span class="y ${r.lvl === "yellow" ? "a" : ""}"></span><span class="g ${r.lvl === "green" ? "a" : ""}"></span></div><h3>${ti}</h3><p>${su}</p><div class="meter" title="Skor risiko"><s style="width:${r.lvl === "green" ? 4 : r.score}%"></s></div><small>Skor risiko ${r.score}/100</small>${r.lvl !== "green" ? '<p><button class="btn" data-dr>Panduan darurat</button><button class="btn" id="btnReport" style="margin-left: 8px;">Laporkan</button></p>' : ""}</div>` +
-                    `<div class="fr rv"><h3 style="font-size:22px">Temuan</h3><ul>${r.flags.map((f) => `<li><span class="tag">Waspada</span>${esc(f.t)}</li>`).join("") || '<li><span class="tag g">Bersih</span>Tidak ada pola bahaya</li>'}</ul><h4>Nomor &amp; tautan</h4><ul>${r.hits.map((h) => `<li><span class="tag">Daftar hitam</span>${esc(h.no)} · ${h.reports} laporan · ${esc(h.tag)}</li>`).join("")}${phoneLis}${r.links.map((l) => `<li><span class="tag ${l.ok ? "g" : ""}">${l.ok ? "Domain resmi" : "Tidak dikenal"}</span>${esc(l.u)}</li>`).join("")}${!r.hits.length && !r.phones.length && !r.links.length ? "<li>Tidak ada nomor atau tautan.</li>" : ""}</ul></div>`;
-                  $("#hasil").classList.add("show");
-                  observe();
-                  
-                  // Wire up tombol Laporkan
-                  const btnReport = document.getElementById('btnReport');
-                  if (btnReport) {
-                    btnReport.onclick = async () => {
-                      const phones = r.phones.join(', ') || '';
-                      const urls = r.links.map(l => l.u).join(', ') || '';
-                      const desc = $("#txt").value.trim();
-                      
-                      const ok = await saveReport(phones || null, urls || null, desc);
-                      if (ok) {
-                        btnReport.textContent = '✓ Terlapor';
-                        btnReport.disabled = true;
-                      } else {
-                        alert('Gagal menyimpan laporan. Coba lagi atau login terlebih dahulu.');
-                      }
-                    };
-                  }
-                }
+          const r = s.result,
+            [ti, su] = VT[r.lvl];
+          const phoneLis = r.phones
+            .filter((p) => !r.hits.some((h) => h.no === p))
+            .map(
+              (p) =>
+                `<li><span class="tag g">Belum dilaporkan</span>${esc(p)}</li>`,
+            )
+            .join("");
+          $("#pair").innerHTML =
+            `<div class="fr rv v-${r.lvl}"><div class="tl"><span class="r ${r.lvl === "red" ? "a" : ""}"></span><span class="y ${r.lvl === "yellow" ? "a" : ""}"></span><span class="g ${r.lvl === "green" ? "a" : ""}"></span></div><h3>${ti}</h3><p>${su}</p><div class="meter" title="Skor risiko"><s style="width:${r.lvl === "green" ? 4 : r.score}%"></s></div><small>Skor risiko ${r.score}/100</small>${r.lvl !== "green" ? '<p><button class="btn" data-dr>Panduan darurat</button><button class="btn" id="btnReport" style="margin-left: 8px;">Laporkan</button></p>' : ""}</div>` +
+            `<div class="fr rv"><h3 style="font-size:22px">Temuan</h3><ul>${r.flags.map((f) => `<li><span class="tag">Waspada</span>${esc(f.t)}</li>`).join("") || '<li><span class="tag g">Bersih</span>Tidak ada pola bahaya</li>'}</ul><h4>Nomor &amp; tautan</h4><ul>${r.hits.map((h) => `<li><span class="tag">Daftar hitam</span>${esc(h.no)} · ${h.reports} laporan · ${esc(h.tag)}</li>`).join("")}${phoneLis}${r.links.map((l) => `<li><span class="tag ${l.ok ? "g" : ""}">${l.ok ? "Domain resmi" : "Tidak dikenal"}</span>${esc(l.u)}</li>`).join("")}${!r.hits.length && !r.phones.length && !r.links.length ? "<li>Tidak ada nomor atau tautan.</li>" : ""}</ul></div>`;
+          $("#hasil").classList.add("show");
+          observe();
+
+          const btnReport = document.getElementById("btnReport");
+          if (btnReport) {
+            btnReport.onclick = async () => {
+              const phones = r.phones.join(", ") || "";
+              const urls = r.links.map((l) => l.u).join(", ") || "";
+              const desc = $("#txt").value.trim();
+
+              const ok = await saveReport(phones || null, urls || null, desc);
+              if (ok) {
+                btnReport.textContent = "✓ Terlapor";
+                btnReport.disabled = true;
+              } else {
+                alert(
+                  "Gagal menyimpan laporan. Coba lagi atau login terlebih dahulu.",
+                );
+              }
+            };
+          }
+        }
       }
-       let io;
+
+      let io;
       function observe() {
         io && io.disconnect();
         io = new IntersectionObserver(
@@ -1649,8 +1799,7 @@
         document.querySelectorAll(".rv").forEach((n) => io.observe(n));
       }
 
-      /*konfersi*/
-     function cleanOCR(t) {
+      function cleanOCR(t) {
         return t
           .replace(/[ \t]+/g, " ")
           .replace(/\s*\n\s*/g, "\n")
@@ -1713,9 +1862,172 @@
         }
       }
 
-     
-      
-/* ===== INTERAKSI ===== */
+      /* Logika Akun, Dropdown, & Hamburger Menu */
+      document.addEventListener("DOMContentLoaded", async function () {
+        let isLogin = localStorage.getItem("isLoggedIn") === "true";
+        let userName = localStorage.getItem("userName") || "Pengguna";
+        let userEmail = localStorage.getItem("userEmail") || "user@email.com";
+
+        const accBtn = document.getElementById("accBtn");
+        const accDropdown = document.getElementById("accDropdown");
+        const accIcon = document.getElementById("accIcon");
+        const userNameEl = document.getElementById("userName");
+        const userEmailEl = document.getElementById("userEmail");
+        const userInitialEl = document.getElementById("userInitial");
+
+        if (isLogin) {
+          if (accIcon) accIcon.style.display = "none";
+          let verifiedIcon = document.createElement("i");
+          verifiedIcon.className = "bx bx-user-check";
+          verifiedIcon.style.cssText = "font-size: 22px; color: var(--ink);";
+          if (accBtn && !accBtn.querySelector(".bx-user-check")) {
+            accBtn.appendChild(verifiedIcon);
+          }
+          if (userNameEl) userNameEl.textContent = userName;
+          if (userEmailEl) userEmailEl.textContent = userEmail;
+          if (userInitialEl)
+            userInitialEl.textContent = userName.charAt(0).toUpperCase();
+        }
+
+        if (accBtn) {
+          accBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (!isLogin) {
+              window.location.href = "login.html";
+            } else {
+              if (accDropdown) {
+                const isOpen = accDropdown.style.display === "block";
+                accDropdown.style.display = isOpen ? "none" : "block";
+              }
+            }
+          };
+        }
+
+        document.addEventListener("click", () => {
+          if (accDropdown) accDropdown.style.display = "none";
+        });
+
+        if (accDropdown) {
+          accDropdown.onclick = (e) => e.stopPropagation();
+        }
+
+        const menuLogout = document.getElementById("menuLogout");
+        if (menuLogout) {
+          menuLogout.onclick = async () => {
+            await supabaseClient.auth.signOut();
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("userName");
+            localStorage.removeItem("userEmail");
+            window.location.reload();
+          };
+        }
+
+        const menuRiwayat = document.getElementById("menuRiwayat");
+        if (menuRiwayat) {
+          menuRiwayat.onclick = async (e) => {
+            e.preventDefault();
+            const hist = await loadHistory();
+            if (hist.length === 0) {
+              alert("Riwayat Analisis:\n\nBelum ada riwayat analisis.");
+            } else {
+              alert(
+                "Riwayat Analisis:\n\n" +
+                  hist
+                    .map(
+                      (h) =>
+                        `[${h.level.toUpperCase()}] Skor ${h.score}/100 - ${h.message.substring(0, 40)}...`,
+                    )
+                    .join("\n"),
+              );
+            }
+          };
+        }
+
+        /* Script Hamburger Mobile Menu */
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const mobileNavDrawer = document.getElementById("mobileNavDrawer");
+        const mobileNavOverlay = document.getElementById("mobileNavOverlay");
+        const closeDrawerBtn = document.getElementById("closeDrawerBtn");
+        const mobLinks = document.querySelectorAll(".mob-link");
+
+        function toggleMobileMenu(open) {
+          if (mobileNavDrawer) mobileNavDrawer.classList.toggle("open", open);
+          if (mobileNavOverlay) mobileNavOverlay.classList.toggle("open", open);
+        }
+
+        if (hamburgerBtn) hamburgerBtn.onclick = () => toggleMobileMenu(true);
+        if (closeDrawerBtn)
+          closeDrawerBtn.onclick = () => toggleMobileMenu(false);
+        if (mobileNavOverlay)
+          mobileNavOverlay.onclick = () => toggleMobileMenu(false);
+        mobLinks.forEach((link) => {
+          link.onclick = () => toggleMobileMenu(false);
+        });
+      });
+
+      const DB = {
+        blacklist: [
+          { no: "081234567890", reports: 128, tag: "Panitia event palsu" },
+          { no: "085711112222", reports: 87, tag: "Undian berhadiah" },
+          { no: "081399990000", reports: 203, tag: "Kurir palsu" },
+        ],
+        official: [
+          "tokopedia.com",
+          "shopee.co.id",
+          "bca.co.id",
+          "bri.co.id",
+          "gojek.com",
+        ],
+        flags: [
+          {
+            re: /\.apk\b/i,
+            w: 100,
+            danger: 1,
+            t: "Meminta memasang file .apk",
+          },
+          {
+            re: /(transfer|kirim)[\s\S]{0,25}(pribadi|rekening)/i,
+            w: 40,
+            t: "Meminta transfer ke rekening pribadi",
+          },
+          {
+            re: /(otp|kode verifikasi|\bpin\b)/i,
+            w: 40,
+            t: "Meminta kode OTP/PIN",
+          },
+          {
+            re: /(hadiah|undian|menang|selamat)/i,
+            w: 30,
+            t: "Iming-iming hadiah atau undian",
+          },
+          {
+            re: /(segera|24 jam|hari ini juga|terakhir)/i,
+            w: 20,
+            t: "Tekanan waktu (urgensi palsu)",
+          },
+          {
+            re: /(bit\.ly|tinyurl|s\.id|cutt\.ly)/i,
+            w: 30,
+            t: "Tautan dipendekkan",
+          },
+          {
+            re: /(kirim|transfer|bayar|setor)[\s\S]{0,40}(\bdp\b|uang muka|biaya admin|biaya kirim|pajak)/i,
+            w: 30,
+            t: "Meminta pembayaran di muka (DP/biaya)",
+          },
+          {
+            re: /(rekening|norek|atas nama|\ba\.n\.)\b[\s\S]{0,40}\d{6,}|(transfer|kirim|bayar|setor)[\s\S]{0,30}\d{8,}/i,
+            w: 30,
+            t: "Nomor rekening pribadi disebutkan",
+          },
+        ],
+        examples: [
+          "Selamat! Anda terpilih jadi panitia event. Instal file undangan_event.apk lalu hubungi 0812-3456-7890",
+          "Halo kak, paket kamu tertahan. Segera konfirmasi OTP ke bit.ly/cek-paket dalam 24 jam",
+          "Pesanan Tokopedia #TP2291 sudah dikirim. Lacak di tokopedia.com/lacak",
+        ],
+      };
+
       $("#file").onchange = (e) => {
         readFile(e.target.files[0]);
         e.target.value = "";
@@ -1780,7 +2092,6 @@
       $("#cl").onclick = ov.onclick = () => tg(false);
       addEventListener("keydown", (e) => e.key === "Escape" && tg(false));
 
-      /* tinggi kartu panduan disamakan (hanya desktop) */
       function eq() {
         const c = [...document.querySelectorAll(".sc")];
         c.forEach((e) => (e.style.minHeight = ""));
@@ -1792,7 +2103,6 @@
       addEventListener("resize", eq);
       document.fonts && document.fonts.ready.then(eq);
 
-      /* menu aktif saat scroll */
       const links = [...document.querySelectorAll(".pill a")];
       const spy = new IntersectionObserver(
         (es) =>
@@ -1811,7 +2121,6 @@
         spy.observe(document.getElementById(id)),
       );
 
-      /*footer najis*/
       (function () {
         const n = 18,
           g = ['<circle cx="500" cy="500" r="400" fill="#5a0f14"/>'];
@@ -1825,36 +2134,39 @@
         $("#wsv").innerHTML = g.join("");
       })();
 
-      /* SIMPAN LAPORAN KE SUPABASE */
       async function saveReport(phone, url, description) {
         try {
           const uid = await userReady();
           if (!uid) return false;
-          const { error } = await supabaseClient.from('reports').insert([{
-            user_id: uid,
-            phone: phone || null,
-            url: url || null,
-            description: description || '',
-            status: 'pending'
-          }]);
-          if (error) { console.warn('Gagal simpan laporan:', error); return false; }
+          const { error } = await supabaseClient.from("reports").insert([
+            {
+              user_id: uid,
+              phone: phone || null,
+              url: url || null,
+              description: description || "",
+              status: "pending",
+            },
+          ]);
+          if (error) {
+            console.warn("Gagal simpan laporan:", error);
+            return false;
+          }
           return true;
         } catch (e) {
-          console.warn('Gagal menyimpan laporan:', e);
+          console.warn("Gagal menyimpan laporan:", e);
           return false;
         }
       }
 
-      /* LOAD HISTORY DARI SUPABASE */
       async function loadHistory() {
         try {
           const uid = await userReady();
           if (!uid) return [];
           const { data, error } = await supabaseClient
-            .from('analysis_history')
-            .select('*')
-            .eq('user_id', uid)
-            .order('created_at', { ascending: false })
+            .from("analysis_history")
+            .select("*")
+            .eq("user_id", uid)
+            .order("created_at", { ascending: false })
             .limit(20);
           if (error) return [];
           return (data || []).map((h) => ({
@@ -1863,7 +2175,7 @@
             score: h.score,
             level: h.level,
             flags: h.flags,
-            created_at: h.created_at
+            created_at: h.created_at,
           }));
         } catch (e) {
           return [];
@@ -1871,7 +2183,6 @@
       }
 
       render();
-
     </script>
-</body>
+  </body>
 </html>
