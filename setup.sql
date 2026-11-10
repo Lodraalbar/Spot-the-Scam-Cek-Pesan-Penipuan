@@ -70,6 +70,45 @@ CREATE POLICY "Users can insert own reports" ON reports
 CREATE POLICY "Users can view own reports" ON reports
   FOR SELECT USING (auth.uid() = user_id);
 
+-- 4b. Daftar nomor terlapor lintas pengguna.
+-- reports milik sendiri tidak bisa dibaca user lain, jadi nomornya disalin
+-- ke tabel ini lewat trigger (SECURITY DEFINER) dan boleh dibaca semua user login.
+CREATE TABLE IF NOT EXISTS reported_numbers (
+  phone TEXT PRIMARY KEY,
+  report_count INT NOT NULL DEFAULT 1,
+  last_report TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE reported_numbers ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated can view reported numbers" ON reported_numbers;
+CREATE POLICY "Authenticated can view reported numbers" ON reported_numbers
+  FOR SELECT TO authenticated USING (true);
+
+CREATE OR REPLACE FUNCTION sync_reported_number() RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  IF coalesce(NEW.phone, '') <> '' THEN
+    INSERT INTO reported_numbers(phone) VALUES (NEW.phone)
+    ON CONFLICT (phone) DO UPDATE
+      SET report_count = reported_numbers.report_count + 1,
+          last_report = now();
+  END IF;
+  RETURN NEW;
+END $$;
+
+DROP TRIGGER IF EXISTS trg_sync_reported_number ON reports;
+CREATE TRIGGER trg_sync_reported_number AFTER INSERT ON reports
+  FOR EACH ROW EXECUTE FUNCTION sync_reported_number();
+
+-- Isi awal dari laporan lama (nomor lama tersimpan dipisah koma)
+INSERT INTO reported_numbers(phone, report_count, last_report)
+SELECT trim(n), count(*), max(r.created_at)
+FROM reports r, regexp_split_to_table(coalesce(r.phone, ''), ',') AS n
+WHERE trim(n) <> ''
+GROUP BY trim(n)
+ON CONFLICT (phone) DO NOTHING;
+
 -- 5. Indexes
 CREATE INDEX IF NOT EXISTS idx_history_user ON analysis_history(user_id);
 CREATE INDEX IF NOT EXISTS idx_reports_user ON reports(user_id);

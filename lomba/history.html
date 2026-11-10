@@ -141,100 +141,24 @@
         color: var(--red);
       }
 
-      .status-dropdown-wrapper {
-        position: relative;
-        display: inline-block;
-      }
-
-      .status-toggle-btn {
-        background-color: rgba(107, 103, 94, 0.12);
-        border: 1px solid rgba(107, 103, 94, 0.2);
-        color: var(--ink);
-        border-radius: 9999px;
-        padding: 8px 16px;
-        font-size: 0.875rem;
-        font-weight: 500;
+      .status-fix {
         display: inline-flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        width: 170px;
-      }
-
-      .status-toggle-btn.btn-reported {
-        background-color: rgba(208, 42, 10, 0.12);
-        color: var(--red-txt);
-        border-color: rgba(208, 42, 10, 0.3);
-      }
-
-      .status-toggle-btn:hover {
-        filter: brightness(0.95);
-      }
-
-      .status-menu {
-        position: absolute;
-        top: calc(100% + 6px);
-        left: 0;
-        width: 170px;
-        background-color: var(--card);
-        border-radius: 1rem;
-        box-shadow:
-          0 10px 25px -5px rgba(0, 0, 0, 0.15),
-          0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        z-index: 50;
-        display: none;
-        border: 1px solid rgba(107, 103, 94, 0.2);
-        padding: 6px;
-        animation: fadeInDropdown 0.2s ease-out forwards;
-      }
-
-      @keyframes fadeInDropdown {
-        from {
-          opacity: 0;
-          transform: translateY(-6px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .status-menu.show {
-        display: block;
-      }
-
-      .status-option {
-        display: flex;
-        align-items: center;
         gap: 8px;
-        width: 100%;
-        padding: 8px 12px;
-        border-radius: 0.75rem;
-        border: none;
-        background: transparent;
-        color: var(--ink);
+        padding: 7px 14px;
+        border-radius: 9999px;
         font-size: 0.875rem;
-        font-weight: 500;
-        text-align: left;
-        cursor: pointer;
-        transition:
-          background-color 0.15s ease,
-          color 0.15s ease;
+        font-weight: 600;
+        border: 1px solid rgba(107, 103, 94, 0.25);
+        color: var(--mut);
+        background-color: rgba(107, 103, 94, 0.1);
+        white-space: nowrap;
       }
 
-      .status-option.reported:hover,
-      .status-option.reported.active {
-        background-color: rgba(208, 42, 10, 0.22);
+      .status-fix.reported {
         color: var(--red-txt);
-      }
-
-      .status-option.unreviewed:hover,
-      .status-option.unreviewed.active {
-        background-color: rgba(107, 103, 94, 0.15);
-        color: var(--ink);
+        background-color: rgba(208, 42, 10, 0.14);
+        border-color: rgba(208, 42, 10, 0.35);
       }
 
       .table-responsive {
@@ -354,16 +278,17 @@
         reported: {
           label: "Dilaporkan",
           icon: '<i class="fa-solid fa-triangle-exclamation"></i>',
-          btn: "btn-reported",
-          cls: "reported",
         },
-        unreviewed: {
-          label: "Tidak Ditinjau",
+        none: {
+          label: "Belum dilaporkan",
           icon: '<i class="fa-solid fa-circle-info"></i>',
-          btn: "",
-          cls: "unreviewed",
+        },
+        nophone: {
+          label: "Tanpa nomor",
+          icon: '<i class="fa-solid fa-minus"></i>',
         },
       };
+
       const LVL = {
         red: {
           cls: "lvl-red",
@@ -375,7 +300,11 @@
           label: "WASPADA",
           icon: "fa-circle-exclamation",
         },
-        green: { cls: "lvl-green", label: "AMAN", icon: "fa-shield-halved" },
+        green: {
+          cls: "lvl-green",
+          label: "TANPA INDIKASI",
+          icon: "fa-shield-halved",
+        },
       };
 
       function timeAgo(iso) {
@@ -396,9 +325,20 @@
         });
       }
 
+      // Nomor HP dinormalisasi sama seperti di home.html
+      function phonesOf(text) {
+        return [
+          ...new Set(
+            (text.match(/(\+62|62|0)8[\d\s-]{8,14}/g) || []).map((p) =>
+              p.replace(/[\s-]/g, "").replace(/^(\+62|62)/, "0"),
+            ),
+          ),
+        ];
+      }
+
       function rowHTML(h) {
         const lvl = LVL[h.level] || LVL.green;
-        const key = ST[h.status] ? h.status : "unreviewed";
+        const key = ST[h.status] ? h.status : "none";
         const st = ST[key];
         const text = h.message || "";
         const title = text.split("\n")[0].slice(0, 60) || "(tanpa teks)";
@@ -407,17 +347,6 @@
           text.length > 110
             ? `<button type="button" class="more-btn" onclick="toggleMessage('${h.id}')">lihat selanjutnya</button>`
             : "";
-        const opts = Object.keys(ST)
-          .map(
-            (k) =>
-              `<button type="button" class="status-option ${ST[k].cls} ${
-                k === key ? "active" : ""
-              }" data-status="${k}" onclick="selectStatus('${h.id}','${k}')">${
-                ST[k].icon
-              } ${ST[k].label}</button>`,
-          )
-          .join("");
-
         return `
           <tr class="transition border-bottom">
             <td class="py-4 px-4">
@@ -438,13 +367,7 @@
               </div>
             </td>
             <td class="py-4 px-4">
-              <div class="status-dropdown-wrapper">
-                <button type="button" class="status-toggle-btn ${st.btn}" onclick="toggleDropdown(event,'dropdown-${h.id}')">
-                  <span class="selected-text d-flex align-items-center gap-2">${st.icon} ${st.label}</span>
-                  <i class="fa-solid fa-chevron-down small text-muted"></i>
-                </button>
-                <div class="status-menu" id="dropdown-${h.id}">${opts}</div>
-              </div>
+              <span class="status-fix ${key === "reported" ? "reported" : ""}">${st.icon} ${st.label}</span>
             </td>
           </tr>`;
       }
@@ -465,7 +388,7 @@
           .limit(100);
 
         // DB lama belum punya kolom status (setup.sql belum dijalankan ulang):
-        // tetap tampilkan riwayat tanpa dropdown status.
+        // migrasi status tidak dipakai lagi: status dihitung dari nomor terlapor.
         if (error && error.code === "42703") {
           ({ data, error } = await supabaseClient
             .from("analysis_history")
@@ -481,54 +404,33 @@
           $("#rows").innerHTML = `<tr><td class="py-5 px-4 text-muted" colspan="3">Riwayat tidak bisa dimuat. Muat ulang halaman atau login kembali.</td></tr>`;
           return;
         }
+        // Status mengikuti daftar nomor terlapor lintas pengguna, bukan pilihan manual
+        const allPhones = [...new Set(data.flatMap((h) => phonesOf(h.message || "")))];
+        let reported = {};
+        if (allPhones.length) {
+          const { data: rn, error: rnErr } = await supabaseClient
+            .from("reported_numbers")
+            .select("phone")
+            .in("phone", allPhones);
+          if (rnErr) console.warn("Gagal muat nomor terlapor:", rnErr.message);
+          reported = Object.fromEntries((rn || []).map((r) => [r.phone, true]));
+        }
+        data = data.map((h) => {
+          const ph = phonesOf(h.message || "");
+          return {
+            ...h,
+            status: !ph.length
+              ? "nophone"
+              : ph.some((p) => reported[p])
+                ? "reported"
+                : "none",
+          };
+        });
+
         $("#rows").innerHTML = data.length
           ? data.map(rowHTML).join("")
           : `<tr><td class="py-5 px-4 text-muted" colspan="3">Belum ada riwayat. <a href="home.html#cek">Cek pesan pertamamu</a>.</td></tr>`;
       }
-
-      // Buka / tutup dropdown status
-      function toggleDropdown(event, dropdownId) {
-        event.stopPropagation();
-        document.querySelectorAll(".status-menu").forEach((menu) => {
-          if (menu.id !== dropdownId) menu.classList.remove("show");
-        });
-        document.getElementById(dropdownId).classList.toggle("show");
-      }
-
-      // Pilih status, lalu simpan ke Supabase
-      async function selectStatus(id, key) {
-        const st = ST[key] || ST.unreviewed;
-        const wrapper = document
-          .getElementById(`dropdown-${id}`)
-          .closest(".status-dropdown-wrapper");
-        const btn = wrapper.querySelector(".status-toggle-btn");
-        const menu = wrapper.querySelector(".status-menu");
-        const prev = btn.innerHTML;
-
-        btn.querySelector(".selected-text").innerHTML = st.icon + " " + st.label;
-        btn.className = "status-toggle-btn" + (st.btn ? " " + st.btn : "");
-        menu.querySelectorAll(".status-option").forEach((opt) => {
-          opt.classList.toggle("active", opt.dataset.status === key);
-        });
-        menu.classList.remove("show");
-
-        const { error } = await supabaseClient
-          .from("analysis_history")
-          .update({ status: key })
-          .eq("id", id);
-        if (error) {
-          console.warn("Gagal simpan status:", error);
-          btn.innerHTML = prev;
-          alert("Status gagal disimpan. Coba lagi.");
-        }
-      }
-
-      // Tutup dropdown saat klik di luar
-      window.addEventListener("click", () => {
-        document.querySelectorAll(".status-menu").forEach((menu) => {
-          menu.classList.remove("show");
-        });
-      });
 
       // Teks perluas / ringkas
       function toggleMessage(id) {

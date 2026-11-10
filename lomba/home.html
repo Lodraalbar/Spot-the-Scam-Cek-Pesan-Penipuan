@@ -1704,8 +1704,8 @@
           "Ada tanda penipuan. Verifikasi lewat kanal resmi sebelum bertindak.",
         ],
         green: [
-          "Aman",
-          "Tidak ada tanda penipuan terdeteksi. Tetap waspada pada permintaan data.",
+          "Belum ada indikasi penipuan",
+          "Pola penipuan yang dikenal tidak ditemukan — tapi ini bukan jaminan aman. Tetap waspada.",
         ],
       };
 
@@ -1739,6 +1739,26 @@
         } catch (e) {
           console.warn("ensureUserRow gagal:", e);
           return null;
+        }
+      }
+
+      async function fetchReported(phones) {
+        if (!phones || !phones.length) return {};
+        try {
+          const { data, error } = await supabaseClient
+            .from("reported_numbers")
+            .select("phone, report_count")
+            .in("phone", phones);
+          if (error) {
+            console.warn("Lookup nomor terlapor:", error.message);
+            return {};
+          }
+          return Object.fromEntries(
+            (data || []).map((r) => [r.phone, r.report_count]),
+          );
+        } catch (e) {
+          console.warn("Lookup nomor terlapor gagal:", e);
+          return {};
         }
       }
 
@@ -1785,41 +1805,63 @@
         if (s.status === "done" && s.result) {
           const r = s.result,
             [ti, su] = VT[r.lvl];
+          const rep = r.reported || {};
+          const reportedAny = r.phones.some((p) => rep[p]);
           const phoneLis = r.phones
-            .filter((p) => !r.hits.some((h) => h.no === p))
-            .map(
-              (p) =>
-                `<li><span class="tag g">Belum dilaporkan</span>${esc(p)}</li>`,
-            )
+            .map((p) => {
+              const hit = r.hits.find((h) => h.no === p);
+              const n = rep[p];
+              const tag = hit
+                ? '<span class="tag">Daftar hitam</span>'
+                : n
+                  ? `<span class="tag">Dilaporkan · ${n} laporan</span>`
+                  : '<span class="tag g">Belum dilaporkan</span>';
+              const note = hit
+                ? ` · ${hit.reports} laporan · ${esc(hit.tag)}`
+                : "";
+              return `<li>${tag}${esc(p)}${note}</li>`;
+            })
             .join("");
+          const reportBtn = r.phones.length
+            ? `<button class="btn" data-report ${reportedAny ? "disabled" : ""} style="margin-left:8px">${reportedAny ? "✓ Nomor terlapor" : "Laporkan nomor"}</button>`
+            : "";
+          const caution =
+            r.lvl === "green"
+              ? '<li><span class="tag">Ingat</span>Hasil ini bukan jaminan aman. Mesin hanya mengenali pola yang sudah dikenal, jadi tetap waspada bila diminta OTP, data pribadi, atau transfer.</li>'
+              : "";
           $("#pair").innerHTML =
-            `<div class="fr rv v-${r.lvl}"><div class="tl"><span class="r ${r.lvl === "red" ? "a" : ""}"></span><span class="y ${r.lvl === "yellow" ? "a" : ""}"></span><span class="g ${r.lvl === "green" ? "a" : ""}"></span></div><h3>${ti}</h3><p>${su}</p><div class="meter" title="Skor risiko"><s style="width:${r.lvl === "green" ? 4 : r.score}%"></s></div><small>Skor risiko ${r.score}/100</small>${r.lvl !== "green" ? `<p><button class="btn" data-dr>Panduan darurat</button>${r.phones.length ? '<button class="btn" id="btnReport" style="margin-left: 8px;">Laporkan nomor</button>' : ""}</p>` : ""}</div>` +
-            `<div class="fr rv"><h3 style="font-size:22px">Temuan</h3><ul>${r.flags.map((f) => `<li><span class="tag">Waspada</span>${esc(f.t)}</li>`).join("") || '<li><span class="tag g">Bersih</span>Tidak ada pola bahaya</li>'}</ul><h4>Nomor &amp; tautan</h4><ul>${r.hits.map((h) => `<li><span class="tag">Daftar hitam</span>${esc(h.no)} · ${h.reports} laporan · ${esc(h.tag)}</li>`).join("")}${phoneLis}${r.links.map((l) => `<li><span class="tag ${l.ok ? "g" : ""}">${l.ok ? "Domain resmi" : "Tidak dikenal"}</span>${esc(l.u)}</li>`).join("")}${!r.hits.length && !r.phones.length && !r.links.length ? "<li>Tidak ada nomor atau tautan.</li>" : ""}</ul></div>`;
+            `<div class="fr rv v-${r.lvl}"><div class="tl"><span class="r ${r.lvl === "red" ? "a" : ""}"></span><span class="y ${r.lvl === "yellow" ? "a" : ""}"></span><span class="g ${r.lvl === "green" ? "a" : ""}"></span></div><h3>${ti}</h3><p>${su}</p><div class="meter" title="Skor risiko"><s style="width:${r.lvl === "green" ? 4 : r.score}%"></s></div><small>Skor risiko ${r.score}/100</small><p>${r.lvl !== "green" ? '<button class="btn" data-dr>Panduan darurat</button>' : ""}${reportBtn}</p></div>` +
+            `<div class="fr rv"><h3 style="font-size:22px">Temuan ${reportedAny ? '<span class="tag">Dilaporkan</span>' : ""}</h3><ul>${r.flags.map((f) => `<li><span class="tag">Waspada</span>${esc(f.t)}</li>`).join("") || '<li><span class="tag g">Bersih</span>Tidak ada pola bahaya</li>'}${caution}</ul><h4>Nomor &amp; tautan</h4><ul>${phoneLis}${r.links.map((l) => `<li><span class="tag ${l.ok ? "g" : ""}">${l.ok ? "Domain resmi" : "Tidak dikenal"}</span>${esc(l.u)}</li>`).join("")}${!r.hits.length && !r.phones.length && !r.links.length ? "<li>Tidak ada nomor atau tautan.</li>" : ""}</ul></div>`;
           $("#hasil").classList.add("show");
           observe();
 
-          const btnReport = document.getElementById("btnReport");
-          if (btnReport) {
+          const btnReport = document.querySelector("[data-report]");
+          if (btnReport && !btnReport.disabled) {
             btnReport.onclick = async () => {
-              const phones = r.phones.join(", ") || "";
+              btnReport.disabled = true;
               const urls = r.links.map((l) => l.u).join(", ") || "";
               const desc = $("#txt").value.trim();
-
-              const ok = await saveReport(phones || null, urls || null, desc);
-              if (ok) {
-                btnReport.textContent = "✓ Terlapor";
-                btnReport.disabled = true;
-                markReported();
-                toast(
-                  "Nomor berhasil dilaporkan",
-                  phones +
-                    " masuk daftar tinjauan Spot the Scam dan menunggu verifikasi admin. Statusnya bisa dilihat di halaman Riwayat.",
-                );
-              } else {
+              const ok = await saveReport(
+                r.phones,
+                urls || null,
+                desc,
+              );
+              if (!ok) {
+                btnReport.disabled = false;
                 alert(
                   "Gagal menyimpan laporan. Coba lagi atau login terlebih dahulu.",
                 );
+                return;
               }
+              r.reported = { ...rep };
+              r.phones.forEach((p) => (r.reported[p] = r.reported[p] || 1));
+              markReported();
+              render();
+              toast(
+                "Nomor berhasil dilaporkan",
+                r.phones.join(", ") +
+                  " masuk daftar nomor terlapor. Semua pengguna yang memasukkan nomor ini akan melihat status Dilaporkan.",
+              );
             };
           }
         }
@@ -2089,9 +2131,11 @@
           return false;
         }
         setState({ status: "analyzing" });
-        setTimeout(() => {
+        setTimeout(async () => {
           const result = analyze(t);
           setState({ status: "done", result });
+          result.reported = await fetchReported(result.phones);
+          if (state.result === result) render();
           saveAnalysisHistory(result);
           $("#hasil").scrollIntoView({ behavior: "smooth" });
         }, 600);
@@ -2162,19 +2206,30 @@
         $("#wsv").innerHTML = g.join("");
       })();
 
-      async function saveReport(phone, url, description) {
+      async function saveReport(phones, url, description) {
         try {
           const uid = await userReady();
           if (!uid) return false;
-          const { error } = await supabaseClient.from("reports").insert([
-            {
-              user_id: uid,
-              phone: phone || null,
-              url: url || null,
-              description: description || "",
-              status: "pending",
-            },
-          ]);
+          const list = (phones || []).filter(Boolean);
+          const { error } = await supabaseClient.from("reports").insert(
+            list.length
+              ? list.map((phone) => ({
+                  user_id: uid,
+                  phone,
+                  url: url || null,
+                  description: description || "",
+                  status: "pending",
+                }))
+              : [
+                  {
+                    user_id: uid,
+                    phone: null,
+                    url: url || null,
+                    description: description || "",
+                    status: "pending",
+                  },
+                ],
+          );
           if (error) {
             console.warn("Gagal simpan laporan:", error);
             return false;
