@@ -68,6 +68,7 @@ Spot the Scam menjawab itu dengan empat prinsip:
 | **Riwayat analisis** | Setiap pemeriksaan tersimpan per akun dan ditampilkan di `history.html` (waktu relatif, skor, isi pesan, status yang bisa diubah) |
 | **Sinkron gambar ↔ teks** | Screenshot yang di-OCR mengisi kolom teks; bila teks dikosongkan, gambar ikut dilepas agar bisa uji ulang tanpa gambar |
 | **Akun & sesi** | Daftar/masuk dengan Supabase Auth; halaman utama tidak dapat dibuka tanpa sesi aktif, halaman login otomatis dialihkan bila sudah masuk |
+| **Lupa kata sandi** | Tautan pada form masuk membuka `reset-password.html`: minta tautan reset via email, buka tautannya, lalu set kata sandi baru; tautan kedaluwarsa ditangani dengan pesan yang jelas |
 | **Antarmuka responsif** | Tata letak adaptif (5 breakpoint di halaman utama, 3 di halaman login), tema gelap berkontras tinggi, status hasil dibedakan warna **dan** teks |
 
 **Akun demo:** `qc.live.1794250398@example.com` / `QcLive123!`
@@ -230,10 +231,10 @@ Seluruh kode aplikasi (HTML, CSS, JavaScript) ditulis sendiri tanpa framework ma
 
 | Nama | Peran |
 | --- | --- |
-| _`<nama ketua tim>`_ | Ketua, pengembangan antarmuka & analisis |
-| _`<nama anggota>`_ | _`<peran>`_ |
+| Lodra Kalimasada A.A. | Ketua sekaligus Backend Developer |
+| Hadaina Silmi Damanik | Frontend Developer |
 
-**Kontak:** _`<email/WhatsApp>`_
+**Kontak:** <Lodrakepow3@gmail.com>
 
 ---
 
