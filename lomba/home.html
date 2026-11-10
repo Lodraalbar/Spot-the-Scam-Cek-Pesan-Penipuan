@@ -413,6 +413,37 @@
         font-size: 38px;
         line-height: 1;
       }
+      /* notifikasi laporan */
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 24px;
+        transform: translate(-50%, 140%);
+        width: min(92vw, 460px);
+        background: var(--card);
+        color: var(--ink);
+        border: 1px solid var(--ink);
+        border-left: 6px solid var(--ok, #1f9d57);
+        border-radius: 14px;
+        padding: 14px 16px;
+        box-shadow: 0 14px 40px #0004;
+        z-index: 300;
+        transition: transform 0.35s ease;
+      }
+      .toast.show {
+        transform: translate(-50%, 0);
+      }
+      .toast b {
+        display: block;
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+      .toast span {
+        display: block;
+        font-size: 13px;
+        line-height: 1.45;
+        color: var(--mut);
+      }
       .dzc {
         width: 100%;
         min-width: 0;
@@ -1272,7 +1303,7 @@
               </div>
             </div>
             <a
-              href="#riwayat"
+              href="history.html"
               id="menuRiwayat"
               style="
                 display: flex;
@@ -1711,11 +1742,13 @@
         }
       }
 
+      let lastHistoryId = null;
       async function saveAnalysisHistory(r) {
+        lastHistoryId = null;
         try {
           const uid = await userReady();
           if (!uid) return;
-          const { error } = await supabaseClient
+          const { data, error } = await supabaseClient
             .from("analysis_history")
             .insert([
               {
@@ -1725,8 +1758,11 @@
                 level: r.lvl,
                 flags: r.flags,
               },
-            ]);
-          if (error) console.warn("Gagal simpan history:", error);
+            ])
+            .select("id")
+            .single();
+          if (error) return console.warn("Gagal simpan history:", error);
+          lastHistoryId = data && data.id;
         } catch (e) {
           console.warn("Gagal simpan history:", e);
         }
@@ -1757,7 +1793,7 @@
             )
             .join("");
           $("#pair").innerHTML =
-            `<div class="fr rv v-${r.lvl}"><div class="tl"><span class="r ${r.lvl === "red" ? "a" : ""}"></span><span class="y ${r.lvl === "yellow" ? "a" : ""}"></span><span class="g ${r.lvl === "green" ? "a" : ""}"></span></div><h3>${ti}</h3><p>${su}</p><div class="meter" title="Skor risiko"><s style="width:${r.lvl === "green" ? 4 : r.score}%"></s></div><small>Skor risiko ${r.score}/100</small>${r.lvl !== "green" ? '<p><button class="btn" data-dr>Panduan darurat</button><button class="btn" id="btnReport" style="margin-left: 8px;">Laporkan</button></p>' : ""}</div>` +
+            `<div class="fr rv v-${r.lvl}"><div class="tl"><span class="r ${r.lvl === "red" ? "a" : ""}"></span><span class="y ${r.lvl === "yellow" ? "a" : ""}"></span><span class="g ${r.lvl === "green" ? "a" : ""}"></span></div><h3>${ti}</h3><p>${su}</p><div class="meter" title="Skor risiko"><s style="width:${r.lvl === "green" ? 4 : r.score}%"></s></div><small>Skor risiko ${r.score}/100</small>${r.lvl !== "green" ? `<p><button class="btn" data-dr>Panduan darurat</button>${r.phones.length ? '<button class="btn" id="btnReport" style="margin-left: 8px;">Laporkan nomor</button>' : ""}</p>` : ""}</div>` +
             `<div class="fr rv"><h3 style="font-size:22px">Temuan</h3><ul>${r.flags.map((f) => `<li><span class="tag">Waspada</span>${esc(f.t)}</li>`).join("") || '<li><span class="tag g">Bersih</span>Tidak ada pola bahaya</li>'}</ul><h4>Nomor &amp; tautan</h4><ul>${r.hits.map((h) => `<li><span class="tag">Daftar hitam</span>${esc(h.no)} · ${h.reports} laporan · ${esc(h.tag)}</li>`).join("")}${phoneLis}${r.links.map((l) => `<li><span class="tag ${l.ok ? "g" : ""}">${l.ok ? "Domain resmi" : "Tidak dikenal"}</span>${esc(l.u)}</li>`).join("")}${!r.hits.length && !r.phones.length && !r.links.length ? "<li>Tidak ada nomor atau tautan.</li>" : ""}</ul></div>`;
           $("#hasil").classList.add("show");
           observe();
@@ -1773,6 +1809,12 @@
               if (ok) {
                 btnReport.textContent = "✓ Terlapor";
                 btnReport.disabled = true;
+                markReported();
+                toast(
+                  "Nomor berhasil dilaporkan",
+                  phones +
+                    " masuk daftar tinjauan Spot the Scam dan menunggu verifikasi admin. Statusnya bisa dilihat di halaman Riwayat.",
+                );
               } else {
                 alert(
                   "Gagal menyimpan laporan. Coba lagi atau login terlebih dahulu.",
@@ -1922,27 +1964,6 @@
           };
         }
 
-        const menuRiwayat = document.getElementById("menuRiwayat");
-        if (menuRiwayat) {
-          menuRiwayat.onclick = async (e) => {
-            e.preventDefault();
-            const hist = await loadHistory();
-            if (hist.length === 0) {
-              alert("Riwayat Analisis:\n\nBelum ada riwayat analisis.");
-            } else {
-              alert(
-                "Riwayat Analisis:\n\n" +
-                  hist
-                    .map(
-                      (h) =>
-                        `[${h.level.toUpperCase()}] Skor ${h.score}/100 - ${h.message.substring(0, 40)}...`,
-                    )
-                    .join("\n"),
-              );
-            }
-          };
-        }
-
         /* Script Hamburger Mobile Menu */
         const hamburgerBtn = document.getElementById("hamburgerBtn");
         const mobileNavDrawer = document.getElementById("mobileNavDrawer");
@@ -2046,6 +2067,13 @@
           if (v === "drop") readFile(e.dataTransfer.files[0]);
         }),
       );
+      /* Hapus teks di kartu = screenshot ikut dilepas */
+      $("#txt").addEventListener("input", (e) => {
+        if (e.target.value.trim() || !state.img) return;
+        setState({ status: "idle", img: null, ocr: "", result: null });
+        $("#hint").textContent =
+          "Screenshot dilepas. Tempel pesan lain atau unggah gambar baru.";
+      });
       document.querySelectorAll("[data-ex]").forEach(
         (a) =>
           (a.onclick = (e) => {
@@ -2158,28 +2186,27 @@
         }
       }
 
-      async function loadHistory() {
-        try {
-          const uid = await userReady();
-          if (!uid) return [];
-          const { data, error } = await supabaseClient
-            .from("analysis_history")
-            .select("*")
-            .eq("user_id", uid)
-            .order("created_at", { ascending: false })
-            .limit(20);
-          if (error) return [];
-          return (data || []).map((h) => ({
-            id: h.id,
-            message: h.message,
-            score: h.score,
-            level: h.level,
-            flags: h.flags,
-            created_at: h.created_at,
-          }));
-        } catch (e) {
-          return [];
+      async function markReported() {
+        if (!lastHistoryId) return;
+        await supabaseClient
+          .from("analysis_history")
+          .update({ status: "reported" })
+          .eq("id", lastHistoryId);
+      }
+
+      function toast(title, sub) {
+        let t = $("#toast");
+        if (!t) {
+          t = document.createElement("div");
+          t.id = "toast";
+          t.className = "toast";
+          t.setAttribute("role", "status");
+          document.body.appendChild(t);
         }
+        t.innerHTML = `<b>${esc(title)}</b><span>${esc(sub)}</span>`;
+        t.classList.add("show");
+        clearTimeout(toast.timer);
+        toast.timer = setTimeout(() => t.classList.remove("show"), 7000);
       }
 
       render();

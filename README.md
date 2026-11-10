@@ -64,8 +64,9 @@ Spot the Scam menjawab itu dengan empat prinsip:
 | **Pencocokan daftar hitam** | Nomor HP diekstrak (format `08…`, `62…`, `+62…`), dinormalisasi, lalu dicocokkan dengan daftar nomor terlapor beserta jumlah laporan |
 | **Deteksi tautan** | Domain dibandingkan dengan daftar domain resmi (tokopedia.com, shopee.co.id, bca.co.id, bri.co.id, gojek.com); tautan pendek (`bit.ly`, `tinyurl`, `s.id`, `cutt.ly`) diberi bobot tersendiri |
 | **Panduan darurat** | Langkah mitigasi instan saat hasil BAHAYA: jangan klik, blokir, amankan akun, laporkan |
-| **Laporkan** | Laporan tersimpan ke database dengan status `pending` untuk dimoderasi, berisi nomor, tautan, dan deskripsi |
-| **Riwayat analisis** | Setiap pemeriksaan tersimpan per akun dan dapat dibuka kembali dari menu akun |
+| **Laporkan** | Tombol hanya muncul bila hasil analisis memuat nomor HP; laporan tersimpan ke database dengan status `pending` lalu muncul notifikasi tujuan laporannya |
+| **Riwayat analisis** | Setiap pemeriksaan tersimpan per akun dan ditampilkan di `history.html` (waktu relatif, skor, isi pesan, status yang bisa diubah) |
+| **Sinkron gambar ↔ teks** | Screenshot yang di-OCR mengisi kolom teks; bila teks dikosongkan, gambar ikut dilepas agar bisa uji ulang tanpa gambar |
 | **Akun & sesi** | Daftar/masuk dengan Supabase Auth; halaman utama tidak dapat dibuka tanpa sesi aktif, halaman login otomatis dialihkan bila sudah masuk |
 | **Antarmuka responsif** | Tata letak adaptif (5 breakpoint di halaman utama, 3 di halaman login), tema gelap berkontras tinggi, status hasil dibedakan warna **dan** teks |
 
@@ -83,7 +84,7 @@ Pendaftaran akun baru juga terbuka (tanpa verifikasi email), jadi penguji dapat 
    - **MENCURIGAKAN** (skor 1–79) — ada pola berisiko; verifikasi lewat kanal resmi sebelum bertindak.
    - **BAHAYA** (skor ≥ 80, ada pola bertanda bahaya, atau nomor terdaftar di daftar hitam) — jangan klik, balas, atau instal apa pun.
 6. Buka panel **Temuan** untuk melihat alasan dan bagian **Nomor & tautan** untuk status daftar hitam, lalu gunakan **Panduan Darurat** atau **Laporkan**.
-7. Riwayat: klik ikon akun di kanan atas → **Riwayat Analisis**.
+7. Riwayat: klik ikon akun di kanan atas → **Lihat Riwayat** (halaman `history.html`). Status tiap pemeriksaan bisa diubah antara *Dilaporkan* dan *Tidak Ditinjau*.
 
 Contoh yang bisa langsung dicoba:
 
@@ -174,10 +175,10 @@ Repo ini sudah dideploy sebagai situs statis. Untuk men-deploy ulang: push ke `m
 | Tabel | Kolom | Keterangan |
 | --- | --- | --- |
 | `users` | `id` (PK, = `auth.users.id`), `email`, `username`, `created_at` | Cermin data akun agar tabel lain dapat memakai foreign key |
-| `analysis_history` | `id`, `user_id` → `users.id`, `message`, `score`, `level`, `flags` (JSONB), `created_at` | Satu baris per analisis |
+| `analysis_history` | `id`, `user_id` → `users.id`, `message`, `score`, `level`, `status` (default `unreviewed`), `flags` (JSONB), `created_at` | Satu baris per analisis |
 | `reports` | `id`, `user_id` → `users.id`, `phone`, `url`, `description`, `status` (default `pending`), `created_at` | Laporan pengguna, dimoderasi manual |
 
-RLS aktif pada ketiga tabel. Policy terpasang: pengguna hanya dapat `SELECT` barisnya sendiri, serta `INSERT` data pengguna/riwayat/laporan dengan `user_id` = `auth.uid()`. Indeks `idx_history_user` dan `idx_reports_user` menjaga kueri riwayat tetap ringan.
+RLS aktif pada ketiga tabel. Policy terpasang: pengguna hanya dapat `SELECT` barisnya sendiri, `INSERT` data pengguna/riwayat/laporan dengan `user_id` = `auth.uid()`, serta `UPDATE` status riwayatnya sendiri. Indeks `idx_history_user` dan `idx_reports_user` menjaga kueri riwayat tetap ringan.
 
 ## 8. Struktur proyek
 
@@ -188,7 +189,8 @@ RLS aktif pada ketiga tabel. Policy terpasang: pengguna hanya dapat `SELECT` bar
 ├── docs/                          # Tangkapan layar untuk dokumentasi
 ├── lomba/
 │   ├── login.html                 # Daftar & masuk (Supabase Auth)
-│   ├── home.html                  # Analisis teks/gambar, riwayat, laporan
+│   ├── home.html                  # Analisis teks/gambar + OCR, laporan
+│   ├── history.html               # Riwayat pemeriksaan + status per baris
 │   └── logo.png
 └── README.md
 ```

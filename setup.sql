@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS analysis_history (
   message TEXT NOT NULL,
   score INT NOT NULL,
   level TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'unreviewed',
   flags JSONB DEFAULT '[]',
   created_at TIMESTAMPTZ DEFAULT now()
 );
@@ -31,11 +32,16 @@ CREATE TABLE IF NOT EXISTS reports (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- 2b. Kolom status untuk riwayat (jalankan juga bila tabel sudah ada)
+ALTER TABLE analysis_history
+  ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'unreviewed';
+
 -- 4. RLS Policies (drop existing first)
 DROP POLICY IF EXISTS "Users can view own data" ON users;
 DROP POLICY IF EXISTS "Users can insert own data" ON users;
 DROP POLICY IF EXISTS "Users can insert own history" ON analysis_history;
 DROP POLICY IF EXISTS "Users can view own history" ON analysis_history;
+DROP POLICY IF EXISTS "Users can update own history" ON analysis_history;
 DROP POLICY IF EXISTS "Users can insert own reports" ON reports;
 DROP POLICY IF EXISTS "Users can view own reports" ON reports;
 
@@ -54,6 +60,9 @@ CREATE POLICY "Users can insert own history" ON analysis_history
 
 CREATE POLICY "Users can view own history" ON analysis_history
   FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own history" ON analysis_history
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can insert own reports" ON reports
   FOR INSERT WITH CHECK (auth.uid() = user_id);
