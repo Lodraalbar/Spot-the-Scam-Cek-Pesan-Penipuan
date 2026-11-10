@@ -141,24 +141,92 @@
         color: var(--red);
       }
 
-      .status-fix {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 7px 14px;
-        border-radius: 9999px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        border: 1px solid rgba(107, 103, 94, 0.25);
-        color: var(--mut);
-        background-color: rgba(107, 103, 94, 0.1);
-        white-space: nowrap;
+      .status-dropdown-wrapper {
+        position: relative;
+        display: inline-block;
       }
 
-      .status-fix.reported {
-        color: var(--red-txt);
+      .status-toggle-btn {
+        background-color: rgba(107, 103, 94, 0.12);
+        border: 1px solid rgba(107, 103, 94, 0.22);
+        color: var(--mut);
+        border-radius: 9999px;
+        padding: 8px 14px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        cursor: pointer;
+        width: 190px;
+        transition: filter 0.2s ease;
+      }
+
+      .status-toggle-btn.btn-reported {
         background-color: rgba(208, 42, 10, 0.14);
+        color: var(--red-txt);
         border-color: rgba(208, 42, 10, 0.35);
+      }
+
+      .status-toggle-btn:hover {
+        filter: brightness(0.95);
+      }
+
+      .status-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        width: 210px;
+        background-color: var(--card);
+        border-radius: 1rem;
+        box-shadow:
+          0 10px 25px -5px rgba(0, 0, 0, 0.15),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        z-index: 50;
+        display: none;
+        border: 1px solid rgba(107, 103, 94, 0.2);
+        padding: 6px;
+      }
+
+      .status-menu.show {
+        display: block;
+      }
+
+      /* Opsi hanya informasi: tidak bisa diklik */
+      .status-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 0.75rem;
+        border: none;
+        background: transparent;
+        color: var(--mut);
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-align: left;
+        cursor: default;
+      }
+
+      .status-option.reported.active {
+        background-color: rgba(208, 42, 10, 0.22);
+        color: var(--red-txt);
+      }
+
+      .status-option.none.active,
+      .status-option.nophone.active {
+        background-color: rgba(107, 103, 94, 0.15);
+        color: var(--ink);
+      }
+
+      .status-note {
+        font-size: 0.75rem;
+        color: var(--mut);
+        padding: 6px 12px 2px;
+        line-height: 1.35;
       }
 
       .table-responsive {
@@ -343,6 +411,16 @@
         const text = h.message || "";
         const title = text.split("\n")[0].slice(0, 60) || "(tanpa teks)";
         const short = text.length > 110 ? text.slice(0, 110) + "…" : text;
+        const opts = Object.keys(ST)
+          .map(
+            (k) =>
+              `<div class="status-option ${k} ${
+                k === key ? "active" : ""
+              }" role="option" aria-selected="${k === key}" aria-disabled="true">${
+                ST[k].icon
+              } ${ST[k].label}</div>`,
+          )
+          .join("");
         const more =
           text.length > 110
             ? `<button type="button" class="more-btn" onclick="toggleMessage('${h.id}')">lihat selanjutnya</button>`
@@ -367,7 +445,13 @@
               </div>
             </td>
             <td class="py-4 px-4">
-              <span class="status-fix ${key === "reported" ? "reported" : ""}">${st.icon} ${st.label}</span>
+              <div class="status-dropdown-wrapper">
+                <button type="button" class="status-toggle-btn ${key === "reported" ? "btn-reported" : ""}" aria-expanded="false" aria-haspopup="listbox" onclick="toggleDropdown(event,'dropdown-${h.id}')">
+                  <span class="selected-text d-flex align-items-center gap-2">${st.icon} ${st.label}</span>
+                  <i class="fa-solid fa-chevron-down small"></i>
+                </button>
+                <div class="status-menu" id="dropdown-${h.id}" role="listbox">${opts}<div class="status-note">Status otomatis dari laporan nomor. Tidak bisa diubah manual.</div></div>
+              </div>
             </td>
           </tr>`;
       }
@@ -431,6 +515,33 @@
           ? data.map(rowHTML).join("")
           : `<tr><td class="py-5 px-4 text-muted" colspan="3">Belum ada riwayat. <a href="home.html#cek">Cek pesan pertamamu</a>.</td></tr>`;
       }
+
+      // Buka / tutup daftar status (hanya untuk melihat)
+      function toggleDropdown(event, dropdownId) {
+        event.stopPropagation();
+        const menu = document.getElementById(dropdownId);
+        const open = !menu.classList.contains("show");
+        document
+          .querySelectorAll(".status-menu")
+          .forEach((m) => m.classList.remove("show"));
+        document
+          .querySelectorAll(".status-toggle-btn")
+          .forEach((b) => b.setAttribute("aria-expanded", "false"));
+        menu.classList.toggle("show", open);
+        menu
+          .closest(".status-dropdown-wrapper")
+          .querySelector(".status-toggle-btn")
+          .setAttribute("aria-expanded", String(open));
+      }
+
+      window.addEventListener("click", () => {
+        document
+          .querySelectorAll(".status-menu")
+          .forEach((m) => m.classList.remove("show"));
+        document
+          .querySelectorAll(".status-toggle-btn")
+          .forEach((b) => b.setAttribute("aria-expanded", "false"));
+      });
 
       // Teks perluas / ringkas
       function toggleMessage(id) {
