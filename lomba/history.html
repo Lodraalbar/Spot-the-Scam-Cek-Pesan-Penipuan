@@ -37,6 +37,8 @@
     <style>
       :root {
         --red: #d02a0a;
+        --red-txt: #ff9a80;
+        --yellow-txt: #ffd166;
         --red2: #701507;
         --red3: #531002;
         --wine: #5a0f14;
@@ -146,7 +148,7 @@
 
       .status-toggle-btn.btn-reported {
         background-color: rgba(208, 42, 10, 0.12);
-        color: var(--red);
+        color: var(--red-txt);
         border-color: rgba(208, 42, 10, 0.3);
       }
 
@@ -209,7 +211,7 @@
       .status-option.reported:hover,
       .status-option.reported.active {
         background-color: rgba(208, 42, 10, 0.15);
-        color: var(--red);
+        color: var(--red-txt);
       }
 
       .status-option.unreviewed:hover,
@@ -230,7 +232,7 @@
         margin-left: 4px;
         font-size: 0.85rem;
         font-weight: 700;
-        color: var(--red);
+        color: var(--red-txt);
         text-decoration: underline;
         cursor: pointer;
         white-space: nowrap;
@@ -255,12 +257,12 @@
 
       .lvl-red {
         background-color: rgba(208, 42, 10, 0.15);
-        color: var(--red);
+        color: var(--red-txt);
       }
 
       .lvl-yellow {
         background-color: rgba(242, 180, 0, 0.18);
-        color: #96690a;
+        color: var(--yellow-txt);
       }
 
       .lvl-green {
