@@ -72,7 +72,7 @@ CREATE POLICY "Users can view own reports" ON reports
 
 -- 4b. Daftar nomor terlapor lintas pengguna.
 -- reports milik sendiri tidak bisa dibaca user lain, jadi nomornya disalin
--- ke tabel ini lewat trigger (SECURITY DEFINER) dan boleh dibaca semua user login.
+-- ke tabel ini lewat trigger (SECURITY DEFINER) dan boleh dibaca siapa saja (termasuk pengunjung).
 CREATE TABLE IF NOT EXISTS reported_numbers (
   phone TEXT PRIMARY KEY,
   report_count INT NOT NULL DEFAULT 1,
@@ -81,9 +81,10 @@ CREATE TABLE IF NOT EXISTS reported_numbers (
 
 ALTER TABLE reported_numbers ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Authenticated can view reported numbers" ON reported_numbers;
-CREATE POLICY "Authenticated can view reported numbers" ON reported_numbers
-  FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Anyone can view reported numbers" ON reported_numbers;
+-- Dibaca juga oleh pengunjung yang belum login, supaya status nomor tetap muncul
+CREATE POLICY "Anyone can view reported numbers" ON reported_numbers
+  FOR SELECT TO anon, authenticated USING (true);
 
 CREATE OR REPLACE FUNCTION sync_reported_number() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
